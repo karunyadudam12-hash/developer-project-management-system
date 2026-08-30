@@ -260,6 +260,13 @@
                   "kind": "scalar"
                 }
               },
+              "role": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "userId": {
                 "nullable": false,
                 "type": {
@@ -310,6 +317,9 @@
                 },
                 "projectId": {
                   "column": "projectId"
+                },
+                "role": {
+                  "column": "role"
                 },
                 "userId": {
                   "column": "userId"
@@ -883,6 +893,15 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
+                "role": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "STAFF"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
                 "userId": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
@@ -1244,7 +1263,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "a314c007f8cf2bb32097427f51122a2ff80aeebb3522242b925c76719bcc3b81"
+    "storageHash": "dcb96af9645ee0f898b69b155ccfdfba04fd3f4e16a3aac1abeffc7539906cf6"
   },
   "execution": {
     "executionHash": "6195e54833169723d0ca14dbd9bc32a5c2a0717594656750c6eb70f6c5c3a7d2",

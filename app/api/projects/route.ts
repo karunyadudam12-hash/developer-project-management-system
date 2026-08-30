@@ -1,10 +1,7 @@
 import {
-  createProject,
   getProjects,
+  createProject,
 } from '@/src/repositories/project.repository';
-
-import { z } from 'zod';
-import { projectSchema } from '@/src/validations/project.validation';
 
 import {
   successResponse,
@@ -12,17 +9,26 @@ import {
 } from '@/src/lib/api-response';
 
 import { requireAuth } from '@/src/auth/auth.guard';
-import { hasPermission } from '@/src/auth/permission.helper';
-import { PERMISSIONS } from '@/src/auth/permissions';
-import type { Role } from '@/src/auth/roles';
-
 
 function getToken(request: Request) {
-  return request.headers
-    .get('authorization')
-    ?.replace('Bearer ', '') ?? null;
-}
+  const authorization = request.headers.get('authorization');
 
+  if (authorization) {
+    return authorization.replace('Bearer ', '');
+  }
+
+  const cookieHeader = request.headers.get('cookie');
+
+  if (!cookieHeader) {
+    return null;
+  }
+
+  const match = cookieHeader.match(
+    /(?:^|;\s*)session_token=([^;]+)/
+  );
+
+  return match ? match[1] : null;
+}
 
 export async function GET(request: Request) {
   try {
@@ -37,14 +43,12 @@ export async function GET(request: Request) {
     const projects = await getProjects();
 
     return successResponse(projects);
-
   } catch (error) {
     console.error('GET /api/projects error:', error);
 
     return errorResponse('Failed to fetch projects');
   }
 }
-
 
 export async function POST(request: Request) {
   try {
@@ -56,33 +60,36 @@ export async function POST(request: Request) {
       return errorResponse('Unauthorized', 401);
     }
 
-    if (
-      !hasPermission(
-        user.role as Role,
-        PERMISSIONS.CREATE_PROJECT
-      )
-    ) {
-      return errorResponse('Forbidden', 403);
-    }
-
     const body = await request.json();
 
-    const validatedData = projectSchema.parse(body);
+    const name =
+      typeof body.name === 'string'
+        ? body.name.trim()
+        : '';
 
-    const project = await createProject(validatedData);
+    const description =
+      typeof body.description === 'string'
+        ? body.description.trim()
+        : undefined;
+
+    const status =
+      typeof body.status === 'string'
+        ? body.status.trim()
+        : undefined;
+
+    if (!name) {
+      return errorResponse('Project name is required', 400);
+    }
+
+    const project = await createProject({
+      name,
+      ...(description !== undefined && { description }),
+      ...(status !== undefined && { status }),
+    });
 
     return successResponse(project, 201);
-
   } catch (error) {
     console.error('POST /api/projects error:', error);
-
-    if (error instanceof z.ZodError) {
-      return errorResponse(
-        'Validation failed',
-        400,
-        error.issues
-      );
-    }
 
     return errorResponse('Failed to create project');
   }

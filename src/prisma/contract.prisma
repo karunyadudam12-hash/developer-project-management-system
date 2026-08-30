@@ -6,13 +6,30 @@ model User {
   username  String?  @unique
   name      String?
   role      String   @default("STAFF")
+  passwordHash String
 
   projects  ProjectMember[]
   tasks     Task[]
   comments  Comment[]
+  sessions  Session[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique
+
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+
+  expiresAt TimestamptzString
+
+  createdAt TimestamptzString @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Project {

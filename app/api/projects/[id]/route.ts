@@ -5,6 +5,10 @@ import {
 } from '@/src/repositories/project.repository';
 
 import {
+  getTasks,
+} from '@/src/repositories/task.repository';
+
+import {
   successResponse,
   errorResponse,
 } from '@/src/lib/api-response';
@@ -12,31 +16,50 @@ import {
 import { requireAuth } from '@/src/auth/auth.guard';
 import { hasPermission } from '@/src/auth/permission.helper';
 import { PERMISSIONS } from '@/src/auth/permissions';
+
 import type { Role } from '@/src/auth/roles';
 
 function getToken(request: Request) {
-  const authorization = request.headers.get('authorization');
+  const authorization =
+    request.headers.get('authorization');
 
-  if (authorization) {
-    return authorization.replace('Bearer ', '');
+  if (authorization?.startsWith('Bearer ')) {
+    return authorization.slice(7).trim();
   }
 
-  const cookieHeader = request.headers.get('cookie');
+  const cookieHeader =
+    request.headers.get('cookie');
 
   if (!cookieHeader) {
     return null;
   }
 
-  const match = cookieHeader.match(
-    /(?:^|;\s*)session_token=([^;]+)/
-  );
+  const sessionCookie =
+    cookieHeader
+      .split(';')
+      .map((cookie) => cookie.trim())
+      .find((cookie) =>
+        cookie.startsWith('session_token=')
+      );
 
-  return match ? match[1] : null;
+  if (!sessionCookie) {
+    return null;
+  }
+
+  return decodeURIComponent(
+    sessionCookie.slice(
+      'session_token='.length
+    )
+  );
 }
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ id: string }>;
+  }
 ) {
   try {
     const token = getToken(request);
@@ -44,33 +67,64 @@ export async function GET(
     const user = await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
     const { id } = await params;
+
     const projectId = Number(id);
 
-    if (!Number.isInteger(projectId) || projectId <= 0) {
-      return errorResponse('Invalid project ID', 400);
+    if (
+      !Number.isInteger(projectId) ||
+      projectId <= 0
+    ) {
+      return errorResponse(
+        'Invalid project ID',
+        400
+      );
     }
 
-    const project = await getProjectById(projectId);
+    const project =
+      await getProjectById(projectId);
 
     if (!project) {
-      return errorResponse('Project not found', 404);
+      return errorResponse(
+        'Project not found',
+        404
+      );
     }
 
-    return successResponse(project);
-  } catch (error) {
-    console.error('GET /api/projects/[id] error:', error);
+    const tasks =
+      await getTasks({
+        projectId,
+      });
 
-    return errorResponse('Failed to fetch project');
+    return successResponse({
+      project,
+      tasks,
+    });
+  } catch (error) {
+    console.error(
+      'GET /api/projects/[id] error:',
+      error
+    );
+
+    return errorResponse(
+      'Failed to fetch project'
+    );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ id: string }>;
+  }
 ) {
   try {
     const token = getToken(request);
@@ -78,7 +132,10 @@ export async function PUT(
     const user = await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
     if (
@@ -87,23 +144,38 @@ export async function PUT(
         PERMISSIONS.UPDATE_PROJECT
       )
     ) {
-      return errorResponse('Forbidden', 403);
+      return errorResponse(
+        'Forbidden',
+        403
+      );
     }
 
     const { id } = await params;
+
     const projectId = Number(id);
 
-    if (!Number.isInteger(projectId) || projectId <= 0) {
-      return errorResponse('Invalid project ID', 400);
+    if (
+      !Number.isInteger(projectId) ||
+      projectId <= 0
+    ) {
+      return errorResponse(
+        'Invalid project ID',
+        400
+      );
     }
 
-    const existingProject = await getProjectById(projectId);
+    const existingProject =
+      await getProjectById(projectId);
 
     if (!existingProject) {
-      return errorResponse('Project not found', 404);
+      return errorResponse(
+        'Project not found',
+        404
+      );
     }
 
-    const body = await request.json();
+    const body =
+      await request.json();
 
     const name =
       typeof body.name === 'string'
@@ -129,7 +201,8 @@ export async function PUT(
     if (
       status !== undefined &&
       !allowedStatuses.includes(
-        status as (typeof allowedStatuses)[number]
+        status as
+          (typeof allowedStatuses)[number]
       )
     ) {
       return errorResponse(
@@ -138,7 +211,10 @@ export async function PUT(
       );
     }
 
-    if (name !== undefined && name.length === 0) {
+    if (
+      name !== undefined &&
+      name.length === 0
+    ) {
       return errorResponse(
         'Project name cannot be empty',
         400
@@ -156,11 +232,21 @@ export async function PUT(
       );
     }
 
-    const project = await updateProject(projectId, {
-      ...(name !== undefined && { name }),
-      ...(description !== undefined && { description }),
-      ...(status !== undefined && { status }),
-    });
+    const project =
+      await updateProject(
+        projectId,
+        {
+          ...(name !== undefined && {
+            name,
+          }),
+          ...(description !== undefined && {
+            description,
+          }),
+          ...(status !== undefined && {
+            status,
+          }),
+        }
+      );
 
     if (!project) {
       return errorResponse(
@@ -169,7 +255,9 @@ export async function PUT(
       );
     }
 
-    return successResponse(project);
+    return successResponse(
+      project
+    );
   } catch (error) {
     console.error(
       'PUT /api/projects/[id] error:',
@@ -184,7 +272,11 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ id: string }>;
+  }
 ) {
   try {
     const token = getToken(request);
@@ -192,7 +284,10 @@ export async function DELETE(
     const user = await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
     if (
@@ -201,20 +296,28 @@ export async function DELETE(
         PERMISSIONS.DELETE_PROJECT
       )
     ) {
-      return errorResponse('Forbidden', 403);
+      return errorResponse(
+        'Forbidden',
+        403
+      );
     }
 
     const { id } = await params;
+
     const projectId = Number(id);
 
-    if (!Number.isInteger(projectId) || projectId <= 0) {
+    if (
+      !Number.isInteger(projectId) ||
+      projectId <= 0
+    ) {
       return errorResponse(
         'Invalid project ID',
         400
       );
     }
 
-    const project = await getProjectById(projectId);
+    const project =
+      await getProjectById(projectId);
 
     if (!project) {
       return errorResponse(
@@ -234,7 +337,8 @@ export async function DELETE(
     }
 
     return successResponse({
-      message: 'Project deleted successfully',
+      message:
+        'Project deleted successfully',
       project: deletedProject,
     });
   } catch (error) {

@@ -3,13 +3,40 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 
-type ProjectStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+type ProjectStatus =
+  | 'ACTIVE'
+  | 'COMPLETED'
+  | 'ARCHIVED';
+
+type TaskStatus =
+  | 'TODO'
+  | 'IN_PROGRESS'
+  | 'DONE';
+
+type TaskPriority =
+  | 'LOW'
+  | 'MEDIUM'
+  | 'HIGH'
+  | 'URGENT';
 
 type Project = {
   id: number;
   name: string;
   description?: string | null;
   status: ProjectStatus;
+};
+
+type Task = {
+  id: number;
+  title: string;
+  description?: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  projectId: number;
+  assigneeId?: number | null;
+  dueDate?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 type ProjectMember = {
@@ -24,14 +51,26 @@ export default function ProjectDetailsPage() {
   const params = useParams();
   const projectId = Number(params.id);
 
-  const [project, setProject] = useState<Project | null>(null);
-  const [members, setMembers] = useState<ProjectMember[]>([]);
+  const [project, setProject] =
+    useState<Project | null>(null);
 
-  const [loading, setLoading] = useState(true);
-  const [membersLoading, setMembersLoading] = useState(true);
+  const [tasks, setTasks] =
+    useState<Task[]>([]);
 
-  const [error, setError] = useState('');
-  const [membersError, setMembersError] = useState('');
+  const [members, setMembers] =
+    useState<ProjectMember[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [membersLoading, setMembersLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState('');
+
+  const [membersError, setMembersError] =
+    useState('');
 
   useEffect(() => {
     async function loadProject() {
@@ -40,15 +79,28 @@ export default function ProjectDetailsPage() {
           `/api/projects/${projectId}`
         );
 
-        const result = await response.json();
+        const result =
+          await response.json();
 
         if (!response.ok) {
           throw new Error(
-            result.error || 'Failed to load project'
+            result.error ||
+              'Failed to load project'
           );
         }
 
-        setProject(result.data || result.details || null);
+        const data =
+          result.data ||
+          result.details ||
+          null;
+
+        setProject(
+          data?.project || null
+        );
+
+        setTasks(
+          data?.tasks || []
+        );
       } catch (err) {
         setError(
           err instanceof Error
@@ -66,16 +118,20 @@ export default function ProjectDetailsPage() {
           `/api/project-members?projectId=${projectId}`
         );
 
-        const result = await response.json();
+        const result =
+          await response.json();
 
         if (!response.ok) {
           throw new Error(
-            result.error || 'Failed to load members'
+            result.error ||
+              'Failed to load members'
           );
         }
 
         setMembers(
-          result.data || result.details || []
+          result.data ||
+            result.details ||
+            []
         );
       } catch (err) {
         setMembersError(
@@ -87,18 +143,13 @@ export default function ProjectDetailsPage() {
         setMembersLoading(false);
       }
     }
-
-    if (
-      Number.isInteger(projectId) &&
-      projectId > 0
-    ) {
-      loadProject();
-      loadMembers();
-    } else {
-      setError('Invalid project ID');
-      setLoading(false);
-      setMembersLoading(false);
-    }
+if (
+  Number.isInteger(projectId) &&
+  projectId > 0
+) {
+  loadProject();
+  loadMembers();
+}
   }, [projectId]);
 
   function getStatusClasses(
@@ -114,6 +165,41 @@ export default function ProjectDetailsPage() {
       case 'ACTIVE':
       default:
         return 'bg-blue-100 text-blue-700';
+    }
+  }
+
+  function getTaskStatusClasses(
+    status: TaskStatus
+  ) {
+    switch (status) {
+      case 'DONE':
+        return 'bg-green-100 text-green-700';
+
+      case 'IN_PROGRESS':
+        return 'bg-yellow-100 text-yellow-700';
+
+      case 'TODO':
+      default:
+        return 'bg-blue-100 text-blue-700';
+    }
+  }
+
+  function getTaskPriorityClasses(
+    priority: TaskPriority
+  ) {
+    switch (priority) {
+      case 'URGENT':
+        return 'bg-red-100 text-red-700';
+
+      case 'HIGH':
+        return 'bg-orange-100 text-orange-700';
+
+      case 'MEDIUM':
+        return 'bg-yellow-100 text-yellow-700';
+
+      case 'LOW':
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   }
 
@@ -219,6 +305,100 @@ export default function ProjectDetailsPage() {
               {project.status}
             </p>
           </div>
+        </div>
+
+        <div className="mt-8 border-t pt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">
+                Project Tasks
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-600">
+                Tasks belonging to this project
+              </p>
+            </div>
+
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium">
+              {tasks.length}
+            </span>
+          </div>
+
+          {tasks.length === 0 ? (
+            <div className="mt-4 rounded-md border p-4 text-center text-sm text-gray-600">
+              No tasks assigned to this project.
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="rounded-md border p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h3 className="font-semibold">
+                        {task.title}
+                      </h3>
+
+                      <p className="mt-1 text-sm text-gray-600">
+                        {task.description ||
+                          'No description'}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${getTaskStatusClasses(
+                          task.status
+                        )}`}
+                      >
+                        {task.status}
+                      </span>
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${getTaskPriorityClasses(
+                          task.priority
+                        )}`}
+                      >
+                        {task.priority}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-2 text-sm text-gray-500 sm:grid-cols-3">
+                    <p>
+                      Task ID: {task.id}
+                    </p>
+
+                    <p>
+                      Assignee:{' '}
+                      {task.assigneeId ??
+                        'Unassigned'}
+                    </p>
+
+                    <p>
+                      Deadline:{' '}
+                      {task.dueDate
+                        ? new Date(
+                            task.dueDate
+                          ).toLocaleDateString()
+                        : 'No deadline'}
+                    </p>
+                  </div>
+
+                  <div className="mt-4">
+                    <a
+                      href={`/tasks/${task.id}`}
+                      className="rounded-md border px-4 py-2 text-sm"
+                    >
+                      View Task
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-8 border-t pt-6">

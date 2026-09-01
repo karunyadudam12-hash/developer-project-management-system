@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'aed80cdaf70eb18672c34bd9d9315619d0edba96074b0e31d05cee6533d947a0'>;
+  StorageHashBase<'6e455e22ed4388cdc2e5889f49e6584471a6279d2198edb38365cda59202bb23'>;
 export type ExecutionHash =
   ExecutionHashBase<'6195e54833169723d0ca14dbd9bc32a5c2a0717594656750c6eb70f6c5c3a7d2'>;
 export type ProfileHash =
@@ -270,17 +270,6 @@ export type FieldOutputTypes = {
       readonly userId: CodecTypes['pg/int4@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
-    readonly Notification: {
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly userId: CodecTypes['pg/int4@1']['output'];
-      readonly actorId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly taskId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly projectId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly type: CodecTypes['pg/text@1']['output'];
-      readonly message: CodecTypes['pg/text@1']['output'];
-      readonly isRead: CodecTypes['pg/bool@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    };
     readonly Project: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
@@ -362,17 +351,6 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly commentId: CodecTypes['pg/int4@1']['input'];
       readonly userId: CodecTypes['pg/int4@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-    readonly Notification: {
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly userId: CodecTypes['pg/int4@1']['input'];
-      readonly actorId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly taskId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly projectId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly type: CodecTypes['pg/text@1']['input'];
-      readonly message: CodecTypes['pg/text@1']['input'];
-      readonly isRead: CodecTypes['pg/bool@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly Project: {
@@ -458,17 +436,6 @@ export type StorageColumnTypes = {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly userId: CodecTypes['pg/int4@1']['output'];
     };
-    readonly notification: {
-      readonly actorId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly isRead: CodecTypes['pg/bool@1']['output'];
-      readonly message: CodecTypes['pg/text@1']['output'];
-      readonly projectId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly taskId: CodecTypes['pg/int4@1']['output'] | null;
-      readonly type: CodecTypes['pg/text@1']['output'];
-      readonly userId: CodecTypes['pg/int4@1']['output'];
-    };
     readonly project: {
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly description: CodecTypes['pg/text@1']['output'] | null;
@@ -550,17 +517,6 @@ export type StorageColumnInputTypes = {
       readonly commentId: CodecTypes['pg/int4@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly userId: CodecTypes['pg/int4@1']['input'];
-    };
-    readonly notification: {
-      readonly actorId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly isRead: CodecTypes['pg/bool@1']['input'];
-      readonly message: CodecTypes['pg/text@1']['input'];
-      readonly projectId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly taskId: CodecTypes['pg/int4@1']['input'] | null;
-      readonly type: CodecTypes['pg/text@1']['input'];
       readonly userId: CodecTypes['pg/int4@1']['input'];
     };
     readonly project: {
@@ -923,154 +879,6 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'user';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
-            readonly notification: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly userId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-                readonly actorId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                };
-                readonly taskId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                };
-                readonly projectId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: true;
-                };
-                readonly type: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly message: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly isRead: {
-                  readonly nativeType: 'bool';
-                  readonly codecId: 'pg/bool@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
-                  };
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [
-                {
-                  readonly name: 'notification_userId_idx_a489d58a';
-                  readonly prefix: 'notification_userId_idx';
-                  readonly columns: readonly ['userId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'notification_actorId_idx_a58f6b4b';
-                  readonly prefix: 'notification_actorId_idx';
-                  readonly columns: readonly ['actorId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'notification_taskId_idx_4965c936';
-                  readonly prefix: 'notification_taskId_idx';
-                  readonly columns: readonly ['taskId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'notification_projectId_idx_a96e4d92';
-                  readonly prefix: 'notification_projectId_idx';
-                  readonly columns: readonly ['projectId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'notification_isRead_idx_a2737ae3';
-                  readonly prefix: 'notification_isRead_idx';
-                  readonly columns: readonly ['isRead'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'notification_createdAt_idx_9575dbd7';
-                  readonly prefix: 'notification_createdAt_idx';
-                  readonly columns: readonly ['createdAt'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'notification';
-                    readonly columns: readonly ['userId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'user';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'notification';
-                    readonly columns: readonly ['actorId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'user';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'notification';
-                    readonly columns: readonly ['taskId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'task';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'notification';
-                    readonly columns: readonly ['projectId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'project';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1537,10 +1345,6 @@ type ContractBase = Omit<
     readonly taskLabel: { readonly namespace: 'public' & NamespaceId; readonly model: 'TaskLabel' };
     readonly mention: { readonly namespace: 'public' & NamespaceId; readonly model: 'Mention' };
     readonly activity: { readonly namespace: 'public' & NamespaceId; readonly model: 'Activity' };
-    readonly notification: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'Notification';
-    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -1798,101 +1602,6 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly Notification: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly userId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly actorId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly taskId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly projectId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly type: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly message: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly isRead: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
-                };
-              };
-            };
-            readonly relations: {
-              readonly actor: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-                readonly cardinality: 'N:1';
-                readonly on: {
-                  readonly localFields: readonly ['actorId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly project: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Project';
-                };
-                readonly cardinality: 'N:1';
-                readonly on: {
-                  readonly localFields: readonly ['projectId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly task: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Task' };
-                readonly cardinality: 'N:1';
-                readonly on: {
-                  readonly localFields: readonly ['taskId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly user: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-                readonly cardinality: 'N:1';
-                readonly on: {
-                  readonly localFields: readonly ['userId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'notification';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly userId: { readonly column: 'userId' };
-                readonly actorId: { readonly column: 'actorId' };
-                readonly taskId: { readonly column: 'taskId' };
-                readonly projectId: { readonly column: 'projectId' };
-                readonly type: { readonly column: 'type' };
-                readonly message: { readonly column: 'message' };
-                readonly isRead: { readonly column: 'isRead' };
-                readonly createdAt: { readonly column: 'createdAt' };
-              };
-            };
-          };
           readonly Project: {
             readonly fields: {
               readonly id: {
@@ -1942,17 +1651,6 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'ProjectMember';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['projectId'];
-                };
-              };
-              readonly notifications: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Notification';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -2175,17 +1873,6 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['taskId'];
                 };
               };
-              readonly notifications: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Notification';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['taskId'];
-                };
-              };
               readonly project: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2348,28 +2035,6 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Mention';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['userId'];
-                };
-              };
-              readonly notificationActors: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Notification';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['actorId'];
-                };
-              };
-              readonly notifications: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Notification';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {

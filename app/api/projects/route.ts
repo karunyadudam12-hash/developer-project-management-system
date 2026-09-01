@@ -10,14 +10,21 @@ import {
 
 import { requireAuth } from '@/src/auth/auth.guard';
 
+import { logProjectActivity } from '@/src/repositories/activity.repository';
+
 function getToken(request: Request) {
-  const authorization = request.headers.get('authorization');
+  const authorization =
+    request.headers.get('authorization');
 
   if (authorization) {
-    return authorization.replace('Bearer ', '');
+    return authorization.replace(
+      'Bearer ',
+      ''
+    );
   }
 
-  const cookieHeader = request.headers.get('cookie');
+  const cookieHeader =
+    request.headers.get('cookie');
 
   if (!cookieHeader) {
     return null;
@@ -30,37 +37,60 @@ function getToken(request: Request) {
   return match ? match[1] : null;
 }
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request
+) {
   try {
-    const token = getToken(request);
+    const token =
+      getToken(request);
 
-    const user = await requireAuth(token);
+    const user =
+      await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
-    const projects = await getProjects();
+    const projects =
+      await getProjects();
 
-    return successResponse(projects);
+    return successResponse(
+      projects
+    );
   } catch (error) {
-    console.error('GET /api/projects error:', error);
+    console.error(
+      'GET /api/projects error:',
+      error
+    );
 
-    return errorResponse('Failed to fetch projects');
+    return errorResponse(
+      'Failed to fetch projects'
+    );
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(
+  request: Request
+) {
   try {
-    const token = getToken(request);
+    const token =
+      getToken(request);
 
-    const user = await requireAuth(token);
+    const user =
+      await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
-    const body = await request.json();
+    const body =
+      await request.json();
 
     const name =
       typeof body.name === 'string'
@@ -78,19 +108,43 @@ export async function POST(request: Request) {
         : undefined;
 
     if (!name) {
-      return errorResponse('Project name is required', 400);
+      return errorResponse(
+        'Project name is required',
+        400
+      );
     }
 
-    const project = await createProject({
-      name,
-      ...(description !== undefined && { description }),
-      ...(status !== undefined && { status }),
+    const project =
+      await createProject({
+        name,
+        ...(description !== undefined && {
+          description,
+        }),
+        ...(status !== undefined && {
+          status,
+        }),
+      });
+
+    await logProjectActivity({
+      actorId: user.id,
+      projectId: project.id,
+      type: 'PROJECT_CREATED',
+      description:
+        `Project "${project.name}" was created`,
     });
 
-    return successResponse(project, 201);
+    return successResponse(
+      project,
+      201
+    );
   } catch (error) {
-    console.error('POST /api/projects error:', error);
+    console.error(
+      'POST /api/projects error:',
+      error
+    );
 
-    return errorResponse('Failed to create project');
+    return errorResponse(
+      'Failed to create project'
+    );
   }
 }

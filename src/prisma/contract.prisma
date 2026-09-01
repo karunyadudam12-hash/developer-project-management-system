@@ -1,17 +1,21 @@
 // use prisma-next
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String?  @unique
-  name      String?
-  role      String   @default("STAFF")
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  username     String?  @unique
+  name         String?
+  role         String   @default("STAFF")
   passwordHash String
 
-  projects  ProjectMember[]
-  tasks     Task[]
-  comments  Comment[]
-  sessions  Session[]
+  projects            ProjectMember[]
+  tasks               Task[]
+  comments            Comment[]
+  sessions            Session[]
+  mentions            Mention[]
+  activities          Activity[]
+notifications      Notification[] @relation("NotificationRecipient")
+notificationActors Notification[] @relation("NotificationActor")
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
@@ -21,8 +25,8 @@ model Session {
   id        Int      @id @default(autoincrement())
   tokenHash String   @unique
 
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
   expiresAt TimestamptzString
 
@@ -38,22 +42,24 @@ model Project {
   description String?
   status      String   @default("ACTIVE")
 
-  members     ProjectMember[]
-  tasks       Task[]
+  members      ProjectMember[]
+  tasks        Task[]
+  activities   Activity[]
+  notifications Notification[]
 
-  createdAt   TimestamptzString @default(now())
-  updatedAt   temporal.updatedAtString()
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
 }
 
 model ProjectMember {
-  id        Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   projectId Int
   userId    Int
-  role      String   @default("STAFF")
+  role      String @default("STAFF")
 
-  project   Project  @relation(fields: [projectId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 
   createdAt TimestamptzString @default(now())
 
@@ -69,34 +75,130 @@ model Task {
   status      String   @default("TODO")
   priority    String   @default("MEDIUM")
 
-  projectId   Int
-  assigneeId  Int?
+  projectId  Int
+  assigneeId Int?
+  dueDate    TimestamptzString?
 
-  project     Project  @relation(fields: [projectId], references: [id])
-  assignee    User?    @relation(fields: [assigneeId], references: [id])
+  project  Project @relation(fields: [projectId], references: [id])
+  assignee User?   @relation(fields: [assigneeId], references: [id])
 
-  comments    Comment[]
+  comments      Comment[]
+  taskLabels    TaskLabel[]
+  activities    Activity[]
+  notifications Notification[]
 
-  createdAt   TimestamptzString @default(now())
-  updatedAt   temporal.updatedAtString()
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
 
   @@index([projectId])
   @@index([assigneeId])
+  @@index([dueDate])
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  content   String
+  id      Int    @id @default(autoincrement())
+  content String
 
-  taskId    Int
-  authorId  Int
+  taskId   Int
+  authorId Int
 
-  task      Task     @relation(fields: [taskId], references: [id])
-  author    User     @relation(fields: [authorId], references: [id])
+  task    Task     @relation(fields: [taskId], references: [id])
+  author  User     @relation(fields: [authorId], references: [id])
+  mentions Mention[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
 
   @@index([taskId])
   @@index([authorId])
+}
+
+model Label {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  taskLabels TaskLabel[]
+
+  createdAt TimestamptzString @default(now())
+}
+
+model TaskLabel {
+  id Int @id @default(autoincrement())
+
+  taskId  Int
+  labelId Int
+
+  task  Task  @relation(fields: [taskId], references: [id])
+  label Label @relation(fields: [labelId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+
+  @@unique([taskId, labelId])
+  @@index([taskId])
+  @@index([labelId])
+}
+
+model Mention {
+  id        Int      @id @default(autoincrement())
+  commentId Int
+  userId    Int
+
+  comment Comment @relation(fields: [commentId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
+}
+
+model Activity {
+  id Int @id @default(autoincrement())
+
+  actorId   Int
+  projectId Int?
+  taskId    Int?
+
+  type        String
+  description String
+  metadata    String?
+
+  actor   User     @relation(fields: [actorId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+  task    Task?    @relation(fields: [taskId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+
+  @@index([actorId])
+  @@index([projectId])
+  @@index([taskId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+
+  userId    Int
+  actorId   Int?
+  taskId    Int?
+  projectId Int?
+
+  type    String
+  message String
+  isRead  Boolean @default(false)
+
+ user    User     @relation("NotificationRecipient", fields: [userId], references: [id])
+actor   User?    @relation("NotificationActor", fields: [actorId], references: [id])
+ task    Task?    @relation(fields: [taskId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+
+  @@index([userId])
+  @@index([actorId])
+  @@index([taskId])
+  @@index([projectId])
+  @@index([isRead])
+  @@index([createdAt])
 }

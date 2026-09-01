@@ -17,6 +17,8 @@ import { requireAuth } from '@/src/auth/auth.guard';
 import { hasPermission } from '@/src/auth/permission.helper';
 import { PERMISSIONS } from '@/src/auth/permissions';
 
+import { logProjectActivity } from '@/src/repositories/activity.repository';
+
 import type { Role } from '@/src/auth/roles';
 
 function getToken(request: Request) {
@@ -39,7 +41,9 @@ function getToken(request: Request) {
       .split(';')
       .map((cookie) => cookie.trim())
       .find((cookie) =>
-        cookie.startsWith('session_token=')
+        cookie.startsWith(
+          'session_token='
+        )
       );
 
   if (!sessionCookie) {
@@ -62,9 +66,11 @@ export async function GET(
   }
 ) {
   try {
-    const token = getToken(request);
+    const token =
+      getToken(request);
 
-    const user = await requireAuth(token);
+    const user =
+      await requireAuth(token);
 
     if (!user) {
       return errorResponse(
@@ -73,9 +79,11 @@ export async function GET(
       );
     }
 
-    const { id } = await params;
+    const { id } =
+      await params;
 
-    const projectId = Number(id);
+    const projectId =
+      Number(id);
 
     if (
       !Number.isInteger(projectId) ||
@@ -88,7 +96,9 @@ export async function GET(
     }
 
     const project =
-      await getProjectById(projectId);
+      await getProjectById(
+        projectId
+      );
 
     if (!project) {
       return errorResponse(
@@ -127,9 +137,11 @@ export async function PUT(
   }
 ) {
   try {
-    const token = getToken(request);
+    const token =
+      getToken(request);
 
-    const user = await requireAuth(token);
+    const user =
+      await requireAuth(token);
 
     if (!user) {
       return errorResponse(
@@ -150,9 +162,11 @@ export async function PUT(
       );
     }
 
-    const { id } = await params;
+    const { id } =
+      await params;
 
-    const projectId = Number(id);
+    const projectId =
+      Number(id);
 
     if (
       !Number.isInteger(projectId) ||
@@ -165,7 +179,9 @@ export async function PUT(
     }
 
     const existingProject =
-      await getProjectById(projectId);
+      await getProjectById(
+        projectId
+      );
 
     if (!existingProject) {
       return errorResponse(
@@ -255,6 +271,35 @@ export async function PUT(
       );
     }
 
+    const activityType =
+      status !== undefined &&
+      status !== existingProject.status
+        ? 'PROJECT_STATUS_CHANGED'
+        : 'PROJECT_UPDATED';
+
+    const descriptionText =
+      activityType ===
+      'PROJECT_STATUS_CHANGED'
+        ? `Project "${project.name}" status changed`
+        : `Project "${project.name}" was updated`;
+
+    await logProjectActivity({
+      actorId: user.id,
+      projectId: project.id,
+      type: activityType,
+      description: descriptionText,
+      metadata:
+        activityType ===
+        'PROJECT_STATUS_CHANGED'
+          ? JSON.stringify({
+              oldStatus:
+                existingProject.status,
+              newStatus:
+                project.status,
+            })
+          : null,
+    });
+
     return successResponse(
       project
     );
@@ -279,9 +324,11 @@ export async function DELETE(
   }
 ) {
   try {
-    const token = getToken(request);
+    const token =
+      getToken(request);
 
-    const user = await requireAuth(token);
+    const user =
+      await requireAuth(token);
 
     if (!user) {
       return errorResponse(
@@ -302,9 +349,11 @@ export async function DELETE(
       );
     }
 
-    const { id } = await params;
+    const { id } =
+      await params;
 
-    const projectId = Number(id);
+    const projectId =
+      Number(id);
 
     if (
       !Number.isInteger(projectId) ||
@@ -317,7 +366,9 @@ export async function DELETE(
     }
 
     const project =
-      await getProjectById(projectId);
+      await getProjectById(
+        projectId
+      );
 
     if (!project) {
       return errorResponse(
@@ -327,7 +378,9 @@ export async function DELETE(
     }
 
     const deletedProject =
-      await deleteProject(projectId);
+      await deleteProject(
+        projectId
+      );
 
     if (!deletedProject) {
       return errorResponse(

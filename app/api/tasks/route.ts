@@ -14,6 +14,8 @@ import { PERMISSIONS } from '@/src/auth/permissions';
 
 import { taskSchema } from '@/src/validations/task.validation';
 
+import { logTaskActivity } from '@/src/repositories/activity.repository';
+
 import type { Role } from '@/src/auth/roles';
 
 function getToken(request: Request) {
@@ -31,19 +33,22 @@ function getToken(request: Request) {
     return null;
   }
 
-  const sessionCookie = cookieHeader
-    .split(';')
-    .map((cookie) => cookie.trim())
-    .find((cookie) =>
-      cookie.startsWith('session_token=')
-    );
+  const sessionCookie =
+    cookieHeader
+      .split(';')
+      .map((cookie) => cookie.trim())
+      .find((cookie) =>
+        cookie.startsWith('session_token=')
+      );
 
   if (!sessionCookie) {
     return null;
   }
 
   return decodeURIComponent(
-    sessionCookie.slice('session_token='.length)
+    sessionCookie.slice(
+      'session_token='.length
+    )
   );
 }
 
@@ -231,6 +236,15 @@ export async function POST(request: Request) {
 
     const task =
       await createTask(parsed.data);
+
+    await logTaskActivity({
+      actorId: user.id,
+      taskId: task.id,
+      projectId: task.projectId,
+      type: 'TASK_CREATED',
+      description:
+        `Task "${task.title}" was created`,
+    });
 
     return successResponse(
       task,

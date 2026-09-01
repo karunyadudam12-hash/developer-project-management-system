@@ -136,7 +136,8 @@ export async function getTasks(filters?: {
 export async function getTaskById(
   taskId: number
 ) {
-  const tasks = await db.orm.public.Task.all();
+  const tasks =
+    await db.orm.public.Task.all();
 
   return (
     tasks.find(
@@ -252,6 +253,21 @@ export async function deleteTask(
 
   if (!task) {
     return null;
+  }
+
+  const activities =
+    await db.orm.public.Activity.all();
+
+  const taskActivities =
+    activities.filter(
+      (activity) =>
+        activity.taskId === taskId
+    );
+
+  for (const activity of taskActivities) {
+    await db.orm.public.Activity
+      .where({ id: activity.id })
+      .delete();
   }
 
   return db.orm.public.Task

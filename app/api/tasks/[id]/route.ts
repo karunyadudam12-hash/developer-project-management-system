@@ -20,6 +20,8 @@ import { taskSchema } from '@/src/validations/task.validation';
 
 import { getProjectMember } from '@/src/repositories/project-member.repository';
 
+import { logTaskActivity } from '@/src/repositories/activity.repository';
+
 import type { Role } from '@/src/auth/roles';
 
 function getToken(request: Request) {
@@ -37,19 +39,22 @@ function getToken(request: Request) {
     return null;
   }
 
-  const sessionCookie = cookieHeader
-    .split(';')
-    .map((cookie) => cookie.trim())
-    .find((cookie) =>
-      cookie.startsWith('session_token=')
-    );
+  const sessionCookie =
+    cookieHeader
+      .split(';')
+      .map((cookie) => cookie.trim())
+      .find((cookie) =>
+        cookie.startsWith('session_token=')
+      );
 
   if (!sessionCookie) {
     return null;
   }
 
   return decodeURIComponent(
-    sessionCookie.slice('session_token='.length)
+    sessionCookie.slice(
+      'session_token='.length
+    )
   );
 }
 
@@ -64,20 +69,33 @@ export async function GET(
     const user = await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
     const { id } = await context.params;
     const taskId = Number(id);
 
-    if (!Number.isInteger(taskId) || taskId <= 0) {
-      return errorResponse('Invalid task ID', 400);
+    if (
+      !Number.isInteger(taskId) ||
+      taskId <= 0
+    ) {
+      return errorResponse(
+        'Invalid task ID',
+        400
+      );
     }
 
-    const task = await getTaskById(taskId);
+    const task =
+      await getTaskById(taskId);
 
     if (!task) {
-      return errorResponse('Task not found', 404);
+      return errorResponse(
+        'Task not found',
+        404
+      );
     }
 
     return successResponse(task);
@@ -87,7 +105,9 @@ export async function GET(
       error
     );
 
-    return errorResponse('Failed to fetch task');
+    return errorResponse(
+      'Failed to fetch task'
+    );
   }
 }
 
@@ -102,7 +122,10 @@ export async function PUT(
     const user = await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
     if (
@@ -111,28 +134,42 @@ export async function PUT(
         PERMISSIONS.UPDATE_TASK
       )
     ) {
-      return errorResponse('Forbidden', 403);
+      return errorResponse(
+        'Forbidden',
+        403
+      );
     }
 
     const { id } = await context.params;
     const taskId = Number(id);
 
-    if (!Number.isInteger(taskId) || taskId <= 0) {
-      return errorResponse('Invalid task ID', 400);
+    if (
+      !Number.isInteger(taskId) ||
+      taskId <= 0
+    ) {
+      return errorResponse(
+        'Invalid task ID',
+        400
+      );
     }
 
     const existingTask =
       await getTaskById(taskId);
 
     if (!existingTask) {
-      return errorResponse('Task not found', 404);
+      return errorResponse(
+        'Task not found',
+        404
+      );
     }
 
-    const body = await request.json();
+    const body =
+      await request.json();
 
-    const parsed = taskSchema
-      .partial()
-      .safeParse(body);
+    const parsed =
+      taskSchema
+        .partial()
+        .safeParse(body);
 
     if (!parsed.success) {
       return errorResponse(
@@ -141,16 +178,32 @@ export async function PUT(
       );
     }
 
-    const updatedTask = await updateTask(
-      taskId,
-      parsed.data
-    );
+    const updatedTask =
+      await updateTask(
+        taskId,
+        parsed.data
+      );
 
     if (!updatedTask) {
-      return errorResponse('Task not found', 404);
+      return errorResponse(
+        'Task not found',
+        404
+      );
     }
 
-    return successResponse(updatedTask);
+    await logTaskActivity({
+      actorId: user.id,
+      taskId,
+      projectId:
+        updatedTask.projectId,
+      type: 'TASK_UPDATED',
+      description:
+        `Task "${updatedTask.title}" was updated`,
+    });
+
+    return successResponse(
+      updatedTask
+    );
   } catch (error) {
     console.error(
       'PUT /api/tasks/[id] error:',
@@ -174,7 +227,10 @@ export async function PATCH(
     const user = await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
     if (
@@ -183,24 +239,37 @@ export async function PATCH(
         PERMISSIONS.UPDATE_TASK
       )
     ) {
-      return errorResponse('Forbidden', 403);
+      return errorResponse(
+        'Forbidden',
+        403
+      );
     }
 
     const { id } = await context.params;
     const taskId = Number(id);
 
-    if (!Number.isInteger(taskId) || taskId <= 0) {
-      return errorResponse('Invalid task ID', 400);
+    if (
+      !Number.isInteger(taskId) ||
+      taskId <= 0
+    ) {
+      return errorResponse(
+        'Invalid task ID',
+        400
+      );
     }
 
     const existingTask =
       await getTaskById(taskId);
 
     if (!existingTask) {
-      return errorResponse('Task not found', 404);
+      return errorResponse(
+        'Task not found',
+        404
+      );
     }
 
-    const body = await request.json();
+    const body =
+      await request.json();
 
     /*
      * STATUS UPDATE
@@ -211,11 +280,12 @@ export async function PATCH(
         'status'
       )
     ) {
-      const parsedStatus = taskSchema
-        .pick({ status: true })
-        .safeParse({
-          status: body.status,
-        });
+      const parsedStatus =
+        taskSchema
+          .pick({ status: true })
+          .safeParse({
+            status: body.status,
+          });
 
       if (!parsedStatus.success) {
         return errorResponse(
@@ -237,7 +307,25 @@ export async function PATCH(
         );
       }
 
-      return successResponse(updatedTask);
+      await logTaskActivity({
+        actorId: user.id,
+        taskId,
+        projectId:
+          existingTask.projectId,
+        type: 'STATUS_CHANGED',
+        description:
+          `Task "${existingTask.title}" status changed`,
+        metadata: JSON.stringify({
+          oldStatus:
+            existingTask.status,
+          newStatus:
+            parsedStatus.data.status,
+        }),
+      });
+
+      return successResponse(
+        updatedTask
+      );
     }
 
     /*
@@ -249,11 +337,12 @@ export async function PATCH(
         'priority'
       )
     ) {
-      const parsedPriority = taskSchema
-        .pick({ priority: true })
-        .safeParse({
-          priority: body.priority,
-        });
+      const parsedPriority =
+        taskSchema
+          .pick({ priority: true })
+          .safeParse({
+            priority: body.priority,
+          });
 
       if (!parsedPriority.success) {
         return errorResponse(
@@ -275,7 +364,25 @@ export async function PATCH(
         );
       }
 
-      return successResponse(updatedTask);
+      await logTaskActivity({
+        actorId: user.id,
+        taskId,
+        projectId:
+          existingTask.projectId,
+        type: 'PRIORITY_CHANGED',
+        description:
+          `Task "${existingTask.title}" priority changed`,
+        metadata: JSON.stringify({
+          oldPriority:
+            existingTask.priority,
+          newPriority:
+            parsedPriority.data.priority,
+        }),
+      });
+
+      return successResponse(
+        updatedTask
+      );
     }
 
     /*
@@ -337,7 +444,25 @@ export async function PATCH(
       );
     }
 
-    return successResponse(updatedTask);
+    await logTaskActivity({
+      actorId: user.id,
+      taskId,
+      projectId:
+        existingTask.projectId,
+      type: 'ASSIGNED',
+      description:
+        `Task "${existingTask.title}" assignment changed`,
+      metadata: JSON.stringify({
+        oldAssigneeId:
+          existingTask.assigneeId,
+        newAssigneeId:
+          assigneeId,
+      }),
+    });
+
+    return successResponse(
+      updatedTask
+    );
   } catch (error) {
     console.error(
       'PATCH /api/tasks/[id] error:',
@@ -361,7 +486,10 @@ export async function DELETE(
     const user = await requireAuth(token);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse(
+        'Unauthorized',
+        401
+      );
     }
 
     if (
@@ -370,14 +498,23 @@ export async function DELETE(
         PERMISSIONS.DELETE_TASK
       )
     ) {
-      return errorResponse('Forbidden', 403);
+      return errorResponse(
+        'Forbidden',
+        403
+      );
     }
 
     const { id } = await context.params;
     const taskId = Number(id);
 
-    if (!Number.isInteger(taskId) || taskId <= 0) {
-      return errorResponse('Invalid task ID', 400);
+    if (
+      !Number.isInteger(taskId) ||
+      taskId <= 0
+    ) {
+      return errorResponse(
+        'Invalid task ID',
+        400
+      );
     }
 
     const existingTask =
@@ -401,7 +538,8 @@ export async function DELETE(
     }
 
     return successResponse({
-      message: 'Task deleted successfully',
+      message:
+        'Task deleted successfully',
       task: deletedTask,
     });
   } catch (error) {

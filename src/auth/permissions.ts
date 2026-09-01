@@ -12,6 +12,7 @@ export const PERMISSIONS = {
   DELETE_TASK: 'DELETE_TASK',
 
   CREATE_COMMENT: 'CREATE_COMMENT',
+  UPDATE_COMMENT: 'UPDATE_COMMENT',
   DELETE_COMMENT: 'DELETE_COMMENT',
 
   VIEW_REPORTS: 'VIEW_REPORTS',
@@ -22,7 +23,10 @@ export const PERMISSIONS = {
 export type Permission =
   (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
-export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
+export const ROLE_PERMISSIONS: Record<
+  Role,
+  readonly Permission[]
+> = {
   [ROLES.ADMIN]: [
     PERMISSIONS.CREATE_PROJECT,
     PERMISSIONS.UPDATE_PROJECT,
@@ -35,6 +39,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     PERMISSIONS.DELETE_TASK,
 
     PERMISSIONS.CREATE_COMMENT,
+    PERMISSIONS.UPDATE_COMMENT,
     PERMISSIONS.DELETE_COMMENT,
 
     PERMISSIONS.VIEW_REPORTS,
@@ -53,6 +58,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     PERMISSIONS.DELETE_TASK,
 
     PERMISSIONS.CREATE_COMMENT,
+    PERMISSIONS.UPDATE_COMMENT,
     PERMISSIONS.DELETE_COMMENT,
 
     PERMISSIONS.VIEW_REPORTS,
@@ -63,5 +69,6 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     PERMISSIONS.UPDATE_TASK,
 
     PERMISSIONS.CREATE_COMMENT,
+    PERMISSIONS.UPDATE_COMMENT,
   ],
 };

@@ -1,5 +1,7 @@
 'use client';
 
+import TaskCollaboration from '@/src/components/tasks/TaskCollaboration';
+
 import { useEffect, useState } from 'react';
 import {
   useParams,
@@ -1681,6 +1683,7 @@ if (
             </div>
           </>
         )}
+        <TaskCollaboration taskId={task.id} />
       </div>
     </main>
   );

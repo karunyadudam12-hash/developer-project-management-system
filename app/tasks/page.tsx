@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import KanbanBoard from '@/src/components/kanban/KanbanBoard';
 
 type TaskStatus =
   | 'TODO'
@@ -55,6 +57,9 @@ export default function TasksPage() {
 
   const [sortOrder, setSortOrder] =
     useState<SortOrder>('asc');
+
+  const [view, setView] =
+    useState<'list' | 'kanban'>('list');
 
   const [loading, setLoading] =
     useState(false);
@@ -137,6 +142,120 @@ export default function TasksPage() {
     }
   }
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function initialLoad() {
+      setLoading(true);
+      setError('');
+
+      try {
+        const params =
+          new URLSearchParams();
+
+        params.set(
+          'sortBy',
+          'title'
+        );
+
+        params.set(
+          'sortOrder',
+          'asc'
+        );
+
+        const response = await fetch(
+          `/api/tasks?${params.toString()}`
+        );
+
+        const result =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.error ||
+              'Failed to load tasks'
+          );
+        }
+
+        if (!cancelled) {
+          setTasks(
+            result.data ||
+              result.details ||
+              []
+          );
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Failed to load tasks'
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void initialLoad();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+async function handleTaskMove(
+  taskId: number,
+  newStatus: TaskStatus
+) {
+  const previousTasks = tasks;
+
+  setTasks((current) =>
+    current.map((task) =>
+      task.id === taskId
+        ? {
+            ...task,
+            status: newStatus,
+          }
+        : task
+    )
+  );
+
+  try {
+    const response = await fetch(
+      `/api/tasks/${taskId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type':
+            'application/json',
+        },
+        body: JSON.stringify({
+          status: newStatus,
+        }),
+      }
+    );
+
+    const result =
+      await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+          'Failed to update task status'
+      );
+    }
+  } catch (err) {
+    setTasks(previousTasks);
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : 'Failed to update task status'
+    );
+  }
+}
   function clearFilters() {
     setSearch('');
     setProjectId('');
@@ -144,7 +263,7 @@ export default function TasksPage() {
     setSortBy('title');
     setSortOrder('asc');
 
-    loadTasks(
+    void loadTasks(
       '',
       '',
       '',
@@ -201,15 +320,45 @@ export default function TasksPage() {
           </p>
         </div>
 
-<Link
-  href="/tasks/new"
-  className="w-fit rounded-md bg-blue-600 px-4 py-2 text-white"
->
-  Create Task
-</Link>
-</div>
+        <Link
+          href="/tasks/new"
+          className="w-fit rounded-md bg-blue-600 px-4 py-2 text-white"
+        >
+          Create Task
+        </Link>
+      </div>
 
-<div className="mt-6 rounded-lg border bg-white p-5 shadow-sm">
+      <div className="mt-6 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() =>
+            setView('list')
+          }
+          className={`rounded-md px-4 py-2 ${
+            view === 'list'
+              ? 'bg-black text-white'
+              : 'border bg-white text-gray-700'
+          }`}
+        >
+          List View
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setView('kanban')
+          }
+          className={`rounded-md px-4 py-2 ${
+            view === 'kanban'
+              ? 'bg-black text-white'
+              : 'border bg-white text-gray-700'
+          }`}
+        >
+          Kanban View
+        </button>
+      </div>
+
+      <div className="mt-6 rounded-lg border bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold">
           Search, Filters & Sorting
         </h2>
@@ -332,8 +481,9 @@ export default function TasksPage() {
 
         <div className="mt-4 flex flex-wrap gap-2">
           <button
+            type="button"
             onClick={() =>
-              loadTasks(
+              void loadTasks(
                 search,
                 projectId,
                 assigneeId,
@@ -347,6 +497,7 @@ export default function TasksPage() {
           </button>
 
           <button
+            type="button"
             onClick={clearFilters}
             className="rounded-md border px-4 py-2"
           >
@@ -375,8 +526,9 @@ export default function TasksPage() {
             </p>
 
             <button
+              type="button"
               onClick={() =>
-                loadTasks(
+                void loadTasks(
                   '',
                   '',
                   '',
@@ -392,7 +544,8 @@ export default function TasksPage() {
         )}
 
       {!loading &&
-        tasks.length > 0 && (
+        tasks.length > 0 &&
+        view === 'list' && (
           <div className="mt-6 space-y-4">
             {tasks.map((task) => (
               <div
@@ -462,6 +615,19 @@ export default function TasksPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+      {!loading &&
+        tasks.length > 0 &&
+        view === 'kanban' && (
+          <div className="mt-6">
+            <KanbanBoard
+              tasks={tasks}
+              onTaskMove={
+                handleTaskMove
+              }
+            />
           </div>
         )}
     </main>

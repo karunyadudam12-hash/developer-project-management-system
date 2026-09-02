@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react';
 
-type ProjectStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+type ProjectStatus =
+  | 'ACTIVE'
+  | 'COMPLETED'
+  | 'ARCHIVED';
 
 type Project = {
   id: number;
@@ -12,53 +15,84 @@ type Project = {
 };
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [projects, setProjects] = useState<Project[]>(
+    []
+  );
+
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<number | null>(
+    null
+  );
+
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [description, setDescription] =
+    useState('');
   const [status, setStatus] =
     useState<ProjectStatus>('ACTIVE');
 
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] =
     useState<number | null>(null);
+
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadProjects() {
+      setLoading(true);
+      setError('');
+
       try {
-        const response = await fetch('/api/projects');
+        const response = await fetch(
+          '/api/projects'
+        );
+
         const result = await response.json();
 
         if (!response.ok) {
           throw new Error(
-            result.error || 'Failed to load projects'
+            result.error ||
+              'Failed to load projects'
           );
         }
 
-        setProjects(
-          result.details || result.data || []
-        );
+        if (!cancelled) {
+          setProjects(
+            result.data ||
+              result.details ||
+              []
+          );
+        }
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : 'Failed to load projects'
-        );
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Failed to load projects'
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
-    loadProjects();
+    void loadProjects();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function startEditing(project: Project) {
     setEditingId(project.id);
     setName(project.name);
-    setDescription(project.description || '');
+    setDescription(
+      project.description || ''
+    );
     setStatus(project.status);
     setError('');
     setMessage('');
@@ -76,7 +110,9 @@ export default function ProjectsPage() {
     if (!editingId) return;
 
     if (!name.trim()) {
-      setError('Project name cannot be empty');
+      setError(
+        'Project name cannot be empty'
+      );
       return;
     }
 
@@ -90,21 +126,25 @@ export default function ProjectsPage() {
         {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type':
+              'application/json',
           },
           body: JSON.stringify({
             name: name.trim(),
-            description: description.trim(),
+            description:
+              description.trim(),
             status,
           }),
         }
       );
 
-      const result = await response.json();
+      const result =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
-          result.error || 'Failed to update project'
+          result.error ||
+            'Failed to update project'
         );
       }
 
@@ -119,7 +159,10 @@ export default function ProjectsPage() {
         )
       );
 
-      setMessage('Project updated successfully');
+      setMessage(
+        'Project updated successfully'
+      );
+
       cancelEditing();
     } catch (err) {
       setError(
@@ -132,10 +175,13 @@ export default function ProjectsPage() {
     }
   }
 
-  async function deleteProject(projectId: number) {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this project?'
-    );
+  async function deleteProject(
+    projectId: number
+  ) {
+    const confirmed =
+      window.confirm(
+        'Are you sure you want to delete this project?'
+      );
 
     if (!confirmed) {
       return;
@@ -153,21 +199,26 @@ export default function ProjectsPage() {
         }
       );
 
-      const result = await response.json();
+      const result =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
-          result.error || 'Failed to delete project'
+          result.error ||
+            'Failed to delete project'
         );
       }
 
       setProjects((current) =>
         current.filter(
-          (project) => project.id !== projectId
+          (project) =>
+            project.id !== projectId
         )
       );
 
-      setMessage('Project deleted successfully');
+      setMessage(
+        'Project deleted successfully'
+      );
     } catch (err) {
       setError(
         err instanceof Error
@@ -179,8 +230,10 @@ export default function ProjectsPage() {
     }
   }
 
-  function getStatusClasses(status: ProjectStatus) {
-    switch (status) {
+  function getStatusClasses(
+    projectStatus: ProjectStatus
+  ) {
+    switch (projectStatus) {
       case 'COMPLETED':
         return 'bg-green-100 text-green-700';
 
@@ -222,13 +275,19 @@ export default function ProjectsPage() {
       </div>
 
       {error && (
-        <p className="mt-4 rounded-md bg-red-100 p-3 text-red-700">
+        <p
+          className="mt-4 rounded-md bg-red-100 p-3 text-red-700"
+          role="alert"
+        >
           {error}
         </p>
       )}
 
       {message && (
-        <p className="mt-4 rounded-md bg-green-100 p-3 text-green-700">
+        <p
+          className="mt-4 rounded-md bg-green-100 p-3 text-green-700"
+          role="status"
+        >
           {message}
         </p>
       )}
@@ -249,14 +308,20 @@ export default function ProjectsPage() {
               {editingId === project.id ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="mb-1 block text-sm font-medium">
+                    <label
+                      htmlFor={`project-name-${project.id}`}
+                      className="mb-1 block text-sm font-medium"
+                    >
                       Project name
                     </label>
 
                     <input
+                      id={`project-name-${project.id}`}
                       value={name}
                       onChange={(e) =>
-                        setName(e.target.value)
+                        setName(
+                          e.target.value
+                        )
                       }
                       className="w-full rounded-md border p-2 outline-none focus:ring-2"
                       placeholder="Project name"
@@ -264,11 +329,15 @@ export default function ProjectsPage() {
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium">
+                    <label
+                      htmlFor={`project-description-${project.id}`}
+                      className="mb-1 block text-sm font-medium"
+                    >
                       Description
                     </label>
 
                     <textarea
+                      id={`project-description-${project.id}`}
                       value={description}
                       onChange={(e) =>
                         setDescription(
@@ -282,11 +351,15 @@ export default function ProjectsPage() {
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium">
+                    <label
+                      htmlFor={`project-status-${project.id}`}
+                      className="mb-1 block text-sm font-medium"
+                    >
                       Status
                     </label>
 
                     <select
+                      id={`project-status-${project.id}`}
                       value={status}
                       onChange={(e) =>
                         setStatus(
@@ -294,7 +367,7 @@ export default function ProjectsPage() {
                             .value as ProjectStatus
                         )
                       }
-                      className="w-full rounded-md border p-2"
+                      className="w-full rounded-md border p-2 outline-none focus:ring-2"
                     >
                       <option value="ACTIVE">
                         Active
@@ -312,9 +385,12 @@ export default function ProjectsPage() {
 
                   <div className="flex gap-3">
                     <button
-                      onClick={saveProject}
+                      type="button"
+                      onClick={
+                        saveProject
+                      }
                       disabled={saving}
-                      className="rounded-md bg-black px-4 py-2 text-white disabled:opacity-50"
+                      className="rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-black"
                     >
                       {saving
                         ? 'Saving...'
@@ -322,9 +398,12 @@ export default function ProjectsPage() {
                     </button>
 
                     <button
-                      onClick={cancelEditing}
+                      type="button"
+                      onClick={
+                        cancelEditing
+                      }
                       disabled={saving}
-                      className="rounded-md border px-4 py-2"
+                      className="rounded-md border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-black"
                     >
                       Cancel
                     </button>
@@ -355,24 +434,32 @@ export default function ProjectsPage() {
 
                   <div className="mt-4 flex flex-wrap gap-3">
                     <button
+                      type="button"
                       onClick={() =>
-                        startEditing(project)
+                        startEditing(
+                          project
+                        )
                       }
-                      className="rounded-md bg-blue-600 px-4 py-2 text-white hover:opacity-90"
+                      className="rounded-md bg-blue-600 px-4 py-2 text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-600"
                     >
                       Edit
                     </button>
 
                     <button
+                      type="button"
                       onClick={() =>
-                        deleteProject(project.id)
+                        deleteProject(
+                          project.id
+                        )
                       }
                       disabled={
-                        deletingId === project.id
+                        deletingId ===
+                        project.id
                       }
-                      className="rounded-md border border-red-300 px-4 py-2 text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      className="rounded-md border border-red-300 px-4 py-2 text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-500"
                     >
-                      {deletingId === project.id
+                      {deletingId ===
+                      project.id
                         ? 'Deleting...'
                         : 'Delete'}
                     </button>

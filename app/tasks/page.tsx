@@ -40,32 +40,18 @@ type Task = {
 };
 
 export default function TasksPage() {
-  const [tasks, setTasks] =
-    useState<Task[]>([]);
-
-  const [search, setSearch] =
-    useState('');
-
-  const [projectId, setProjectId] =
-    useState('');
-
-  const [assigneeId, setAssigneeId] =
-    useState('');
-
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [search, setSearch] = useState('');
+  const [projectId, setProjectId] = useState('');
+  const [assigneeId, setAssigneeId] = useState('');
   const [sortBy, setSortBy] =
     useState<SortField>('title');
-
   const [sortOrder, setSortOrder] =
     useState<SortOrder>('asc');
-
   const [view, setView] =
     useState<'list' | 'kanban'>('list');
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [error, setError] =
-    useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   async function loadTasks(
     nextSearch = search,
@@ -78,8 +64,7 @@ export default function TasksPage() {
     setError('');
 
     try {
-      const params =
-        new URLSearchParams();
+      const params = new URLSearchParams();
 
       if (nextSearch.trim()) {
         params.set(
@@ -102,22 +87,14 @@ export default function TasksPage() {
         );
       }
 
-      params.set(
-        'sortBy',
-        nextSortBy
-      );
-
-      params.set(
-        'sortOrder',
-        nextSortOrder
-      );
+      params.set('sortBy', nextSortBy);
+      params.set('sortOrder', nextSortOrder);
 
       const response = await fetch(
         `/api/tasks?${params.toString()}`
       );
 
-      const result =
-        await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -150,25 +127,16 @@ export default function TasksPage() {
       setError('');
 
       try {
-        const params =
-          new URLSearchParams();
+        const params = new URLSearchParams();
 
-        params.set(
-          'sortBy',
-          'title'
-        );
-
-        params.set(
-          'sortOrder',
-          'asc'
-        );
+        params.set('sortBy', 'title');
+        params.set('sortOrder', 'asc');
 
         const response = await fetch(
           `/api/tasks?${params.toString()}`
         );
 
-        const result =
-          await response.json();
+        const result = await response.json();
 
         if (!response.ok) {
           throw new Error(
@@ -205,57 +173,59 @@ export default function TasksPage() {
       cancelled = true;
     };
   }, []);
-async function handleTaskMove(
-  taskId: number,
-  newStatus: TaskStatus
-) {
-  const previousTasks = tasks;
 
-  setTasks((current) =>
-    current.map((task) =>
-      task.id === taskId
-        ? {
-            ...task,
-            status: newStatus,
-          }
-        : task
-    )
-  );
+  async function handleTaskMove(
+    taskId: number,
+    newStatus: TaskStatus
+  ) {
+    const previousTasks = tasks;
 
-  try {
-    const response = await fetch(
-      `/api/tasks/${taskId}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type':
-            'application/json',
-        },
-        body: JSON.stringify({
-          status: newStatus,
-        }),
-      }
+    setTasks((current) =>
+      current.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              status: newStatus,
+            }
+          : task
+      )
     );
 
-    const result =
-      await response.json();
+    try {
+      const response = await fetch(
+        `/api/tasks/${taskId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type':
+              'application/json',
+          },
+          body: JSON.stringify({
+            status: newStatus,
+          }),
+        }
+      );
 
-    if (!response.ok) {
-      throw new Error(
-        result.error ||
-          'Failed to update task status'
+      const result =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ||
+            'Failed to update task status'
+        );
+      }
+    } catch (err) {
+      setTasks(previousTasks);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to update task status'
       );
     }
-  } catch (err) {
-    setTasks(previousTasks);
-
-    setError(
-      err instanceof Error
-        ? err.message
-        : 'Failed to update task status'
-    );
   }
-}
+
   function clearFilters() {
     setSearch('');
     setProjectId('');
@@ -322,7 +292,7 @@ async function handleTaskMove(
 
         <Link
           href="/tasks/new"
-          className="w-fit rounded-md bg-blue-600 px-4 py-2 text-white"
+          className="w-fit rounded-md bg-blue-600 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
           Create Task
         </Link>
@@ -331,10 +301,9 @@ async function handleTaskMove(
       <div className="mt-6 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() =>
-            setView('list')
-          }
-          className={`rounded-md px-4 py-2 ${
+          onClick={() => setView('list')}
+          aria-pressed={view === 'list'}
+          className={`rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black ${
             view === 'list'
               ? 'bg-black text-white'
               : 'border bg-white text-gray-700'
@@ -345,10 +314,9 @@ async function handleTaskMove(
 
         <button
           type="button"
-          onClick={() =>
-            setView('kanban')
-          }
-          className={`rounded-md px-4 py-2 ${
+          onClick={() => setView('kanban')}
+          aria-pressed={view === 'kanban'}
+          className={`rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black ${
             view === 'kanban'
               ? 'bg-black text-white'
               : 'border bg-white text-gray-700'
@@ -365,11 +333,15 @@ async function handleTaskMove(
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-search"
+              className="mb-1 block text-sm font-medium"
+            >
               Search
             </label>
 
             <input
+              id="task-search"
               type="text"
               value={search}
               onChange={(event) =>
@@ -377,17 +349,21 @@ async function handleTaskMove(
                   event.target.value
                 )
               }
-              className="w-full rounded-md border p-2"
+              className="w-full rounded-md border p-2 outline-none focus:ring-2"
               placeholder="Title or description"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-project-id"
+              className="mb-1 block text-sm font-medium"
+            >
               Project ID
             </label>
 
             <input
+              id="task-project-id"
               type="number"
               min="1"
               value={projectId}
@@ -396,17 +372,21 @@ async function handleTaskMove(
                   event.target.value
                 )
               }
-              className="w-full rounded-md border p-2"
+              className="w-full rounded-md border p-2 outline-none focus:ring-2"
               placeholder="e.g. 2"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-assignee-id"
+              className="mb-1 block text-sm font-medium"
+            >
               Assignee ID
             </label>
 
             <input
+              id="task-assignee-id"
               type="number"
               min="1"
               value={assigneeId}
@@ -415,17 +395,21 @@ async function handleTaskMove(
                   event.target.value
                 )
               }
-              className="w-full rounded-md border p-2"
+              className="w-full rounded-md border p-2 outline-none focus:ring-2"
               placeholder="e.g. 20"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-sort-by"
+              className="mb-1 block text-sm font-medium"
+            >
               Sort By
             </label>
 
             <select
+              id="task-sort-by"
               value={sortBy}
               onChange={(event) =>
                 setSortBy(
@@ -433,7 +417,7 @@ async function handleTaskMove(
                     .value as SortField
                 )
               }
-              className="w-full rounded-md border p-2"
+              className="w-full rounded-md border p-2 outline-none focus:ring-2"
             >
               <option value="title">
                 Title
@@ -454,11 +438,15 @@ async function handleTaskMove(
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="task-sort-order"
+              className="mb-1 block text-sm font-medium"
+            >
               Order
             </label>
 
             <select
+              id="task-sort-order"
               value={sortOrder}
               onChange={(event) =>
                 setSortOrder(
@@ -466,7 +454,7 @@ async function handleTaskMove(
                     .value as SortOrder
                 )
               }
-              className="w-full rounded-md border p-2"
+              className="w-full rounded-md border p-2 outline-none focus:ring-2"
             >
               <option value="asc">
                 Ascending
@@ -491,7 +479,7 @@ async function handleTaskMove(
                 sortOrder
               )
             }
-            className="rounded-md bg-black px-4 py-2 text-white"
+            className="rounded-md bg-black px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-black"
           >
             Apply
           </button>
@@ -499,7 +487,7 @@ async function handleTaskMove(
           <button
             type="button"
             onClick={clearFilters}
-            className="rounded-md border px-4 py-2"
+            className="rounded-md border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
           >
             Clear
           </button>
@@ -507,13 +495,20 @@ async function handleTaskMove(
       </div>
 
       {error && (
-        <p className="mt-4 rounded-md bg-red-100 p-3 text-red-700">
+        <p
+          className="mt-4 rounded-md bg-red-100 p-3 text-red-700"
+          role="alert"
+        >
           {error}
         </p>
       )}
 
       {loading && (
-        <p className="mt-6 text-gray-600">
+        <p
+          className="mt-6 text-gray-600"
+          role="status"
+          aria-live="polite"
+        >
           Loading tasks...
         </p>
       )}
@@ -536,7 +531,7 @@ async function handleTaskMove(
                   'asc'
                 )
               }
-              className="mt-3 rounded-md bg-black px-4 py-2 text-white"
+              className="mt-3 rounded-md bg-black px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-black"
             >
               Load All Tasks
             </button>
@@ -606,12 +601,12 @@ async function handleTaskMove(
                 </div>
 
                 <div className="mt-4">
-                  <a
+                  <Link
                     href={`/tasks/${task.id}`}
-                    className="rounded-md border px-4 py-2 text-sm"
+                    className="rounded-md border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                   >
                     View Task
-                  </a>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -621,12 +616,13 @@ async function handleTaskMove(
       {!loading &&
         tasks.length > 0 &&
         view === 'kanban' && (
-          <div className="mt-6">
+          <div
+            className="mt-6"
+            aria-label="Task Kanban board"
+          >
             <KanbanBoard
               tasks={tasks}
-              onTaskMove={
-                handleTaskMove
-              }
+              onTaskMove={handleTaskMove}
             />
           </div>
         )}

@@ -42,3 +42,8 @@ next-env.d.ts
 node_modules/
 dist/
 .env
+
+!.env.example
+!.env.production.example
+
+dpms_backup.dump

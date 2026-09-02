@@ -15,7 +15,9 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     setError("");
@@ -32,35 +34,48 @@ export default function RegisterPage() {
     }
 
     if (username.trim().length < 3) {
-      setError("Username must be at least 3 characters");
+      setError(
+        "Username must be at least 3 characters"
+      );
       return;
     }
 
-    if (name.trim().length > 0 && name.trim().length < 2) {
-      setError("Name must be at least 2 characters");
+    if (
+      name.trim().length > 0 &&
+      name.trim().length < 2
+    ) {
+      setError(
+        "Name must be at least 2 characters"
+      );
       return;
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError(
+        "Password must be at least 8 characters"
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          username: username.trim(),
-          name: name.trim() || undefined,
-          password,
-        }),
-      });
+      const response = await fetch(
+        "/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            username: username.trim(),
+            name: name.trim() || undefined,
+            password,
+          }),
+        }
+      );
 
       const result = await response.json();
 
@@ -90,7 +105,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
+    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-8">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900">
@@ -116,14 +131,16 @@ export default function RegisterPage() {
 
             <input
               id="email"
+              name="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(event) => {
                 setEmail(event.target.value);
                 setError("");
               }}
               placeholder="Enter your email"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-black focus:ring-1 focus:ring-black"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-black focus:ring-2 focus:ring-black"
             />
           </div>
 
@@ -137,14 +154,20 @@ export default function RegisterPage() {
 
             <input
               id="username"
+              name="username"
               type="text"
+              autoComplete="username"
+              minLength={3}
+              maxLength={30}
               value={username}
               onChange={(event) => {
-                setUsername(event.target.value);
+                setUsername(
+                  event.target.value
+                );
                 setError("");
               }}
               placeholder="Enter your username"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-black focus:ring-1 focus:ring-black"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-black focus:ring-2 focus:ring-black"
             />
           </div>
 
@@ -158,14 +181,18 @@ export default function RegisterPage() {
 
             <input
               id="name"
+              name="name"
               type="text"
+              autoComplete="name"
+              minLength={2}
+              maxLength={100}
               value={name}
               onChange={(event) => {
                 setName(event.target.value);
                 setError("");
               }}
               placeholder="Enter your name"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-black focus:ring-1 focus:ring-black"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-black focus:ring-2 focus:ring-black"
             />
           </div>
 
@@ -179,25 +206,39 @@ export default function RegisterPage() {
 
             <input
               id="password"
+              name="password"
               type="password"
+              autoComplete="new-password"
+              minLength={8}
+              maxLength={100}
               value={password}
               onChange={(event) => {
-                setPassword(event.target.value);
+                setPassword(
+                  event.target.value
+                );
                 setError("");
               }}
               placeholder="Minimum 8 characters"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-black focus:ring-1 focus:ring-black"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-black focus:ring-2 focus:ring-black"
             />
           </div>
 
           {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+            <div
+              className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600"
+              role="alert"
+              aria-live="assertive"
+            >
               {error}
             </div>
           )}
 
           {success && (
-            <div className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-600">
+            <div
+              className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-600"
+              role="status"
+              aria-live="polite"
+            >
               {success}
             </div>
           )}
@@ -205,9 +246,11 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-black px-4 py-3 font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-black px-4 py-3 font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
           >
-            {loading ? "Creating account..." : "Create Account"}
+            {loading
+              ? "Creating account..."
+              : "Create Account"}
           </button>
         </form>
 
@@ -216,7 +259,7 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={() => router.push("/login")}
-            className="font-medium text-black hover:underline"
+            className="font-medium text-black hover:underline focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
           >
             Sign in
           </button>

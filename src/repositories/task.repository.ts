@@ -255,18 +255,63 @@ export async function deleteTask(
     return null;
   }
 
+  const taskLabels =
+    await db.orm.public.TaskLabel.all();
+
+  for (const taskLabel of taskLabels.filter(
+    (item) => item.taskId === taskId
+  )) {
+    await db.orm.public.TaskLabel
+      .where({ id: taskLabel.id })
+      .delete();
+  }
+
+  const comments =
+    await db.orm.public.Comment.all();
+
+  const taskComments =
+    comments.filter(
+      (comment) =>
+        comment.taskId === taskId
+    );
+
+  const mentions =
+    await db.orm.public.Mention.all();
+
+  for (const comment of taskComments) {
+    for (const mention of mentions.filter(
+      (item) =>
+        item.commentId === comment.id
+    )) {
+      await db.orm.public.Mention
+        .where({ id: mention.id })
+        .delete();
+    }
+
+    await db.orm.public.Comment
+      .where({ id: comment.id })
+      .delete();
+  }
+
   const activities =
     await db.orm.public.Activity.all();
 
-  const taskActivities =
-    activities.filter(
-      (activity) =>
-        activity.taskId === taskId
-    );
-
-  for (const activity of taskActivities) {
+  for (const activity of activities.filter(
+    (item) => item.taskId === taskId
+  )) {
     await db.orm.public.Activity
       .where({ id: activity.id })
+      .delete();
+  }
+
+  const notifications =
+    await db.orm.public.Notification.all();
+
+  for (const notification of notifications.filter(
+    (item) => item.taskId === taskId
+  )) {
+    await db.orm.public.Notification
+      .where({ id: notification.id })
       .delete();
   }
 

@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16
+    container_name: dpms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dpms
+    ports:
+      - "5432:5432"
+    volumes:
+      - dpms_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d dpms"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dpms-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/dpms
+      NODE_ENV: production
+    ports:
+      - "3001:3000"
+
+volumes:
+  dpms_pgdata:
+

@@ -1,5 +1,4 @@
 import {
-  PERMISSIONS,
   ROLE_PERMISSIONS,
   type Permission,
 } from './permissions';

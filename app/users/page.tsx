@@ -10,13 +10,15 @@ export default function UsersPage() {
   const [error, setError] = useState('');
   const loadUsers = useCallback(async () => {
     setLoading(true); setError('');
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10_000);
     try {
-      const response = await fetch('/api/users', { cache: 'no-store' });
+      const response = await fetch('/api/users', { cache: 'no-store', signal: controller.signal });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Failed to load users');
       setUsers(result.data || result.details || []);
-    } catch (err) { setError(err instanceof Error ? err.message : 'Failed to load users');
-    } finally { setLoading(false); }
+    } catch (err) { setError(err instanceof DOMException && err.name === 'AbortError' ? 'The user directory took too long to load. Please retry.' : err instanceof Error ? err.message : 'Failed to load users');
+    } finally { window.clearTimeout(timeout); setLoading(false); }
   }, []);
   useEffect(() => {
     const timer = window.setTimeout(() => { void loadUsers(); }, 0);

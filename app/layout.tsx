@@ -7,6 +7,7 @@ import "./globals.css";
 
 import NotificationBell from "@/src/components/notifications/NotificationBell";
 import LogoutButton from "@/src/components/auth/LogoutButton";
+import { getCurrentUser } from "@/src/services/current-user.service";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +20,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DPMS",
+  title: {
+    default: "DPMS",
+    template: "%s | DPMS",
+  },
   description: "Developer Project Management System",
 };
 
@@ -36,7 +40,8 @@ export default async function RootLayout({
   children: ReactNode;
 }) {
   const cookieStore = await cookies();
-  const hasSession = Boolean(cookieStore.get("session_token")?.value);
+  const token = cookieStore.get("session_token")?.value;
+  const hasSession = Boolean(token && await getCurrentUser(token));
 
   return (
     <html
@@ -48,17 +53,17 @@ export default async function RootLayout({
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex min-h-16 items-center justify-between gap-2 sm:gap-4">
               <Link
-                href="/dashboard"
+                href={hasSession ? "/dashboard" : "/"}
                 className="shrink-0 text-xl font-bold tracking-tight text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
               >
                 DPMS
               </Link>
 
-              <nav
-                aria-label="Main navigation"
-                className="hidden items-center gap-1 md:flex"
-              >
-                {navigation.map((item) => (
+              <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
+                {(hasSession ? navigation : [
+                  { href: "/login", label: "Sign in" },
+                  { href: "/register", label: "Create account" },
+                ]).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -79,11 +84,11 @@ export default async function RootLayout({
               </div>
             </div>
 
-            <nav
-              aria-label="Mobile navigation"
-              className="flex gap-1 overflow-x-auto border-t border-gray-100 py-2 md:hidden"
-            >
-              {navigation.map((item) => (
+            <nav aria-label="Mobile navigation" className="flex gap-1 overflow-x-auto border-t border-gray-100 py-2 md:hidden">
+              {(hasSession ? navigation : [
+                { href: "/login", label: "Sign in" },
+                { href: "/register", label: "Create account" },
+              ]).map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

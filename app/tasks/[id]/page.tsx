@@ -369,13 +369,14 @@ if (
             'Content-Type':
               'application/json',
           },
-          body: JSON.stringify({
-            title: title.trim(),
-            description:
-              description.trim(),
-            status,
-            priority,
-            dueDate: editDueDate
+body: JSON.stringify({
+  title: title.trim(),
+  description:
+    description.trim(),
+  status,
+  priority,
+ projectId: task?.projectId,
+  dueDate: editDueDate
               ? new Date(
                   `${editDueDate}T23:59:59`
                 ).toISOString()

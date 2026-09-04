@@ -75,8 +75,10 @@ function KanbanTaskCard({
         onDragStart(event, task)
       }
       className="
-        w-full min-w-0
+        w-full
+        min-w-0
         cursor-grab
+        overflow-hidden
         rounded-lg
         border
         bg-white
@@ -88,26 +90,34 @@ function KanbanTaskCard({
         sm:p-4
       "
     >
-      <div className="flex min-w-0 items-start justify-between gap-2">
-        <h3 className="min-w-0 flex-1 break-words text-sm font-semibold text-gray-900 sm:text-base">
+      <div className="flex min-w-0 items-start gap-2">
+        <h3 className="min-w-0 flex-1 break-words text-sm font-semibold leading-5 text-gray-900 sm:text-base sm:leading-6">
           {task.title}
         </h3>
 
         <span
-          className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-medium sm:text-xs ${getPriorityClasses(
-            task.priority
-          )}`}
+          className={`
+            shrink-0
+            whitespace-nowrap
+            rounded-full
+            px-2
+            py-1
+            text-[10px]
+            font-medium
+            sm:text-xs
+            ${getPriorityClasses(task.priority)}
+          `}
         >
           {task.priority}
         </span>
       </div>
 
-      <p className="mt-2 line-clamp-3 break-words text-xs text-gray-600 sm:text-sm">
+      <p className="mt-2 break-words text-xs leading-5 text-gray-600 sm:text-sm">
         {task.description ||
           'No description'}
       </p>
 
-      <div className="mt-3 space-y-1 text-[11px] text-gray-500 sm:mt-4 sm:text-xs">
+      <div className="mt-3 space-y-1 text-[11px] leading-4 text-gray-500 sm:mt-4 sm:text-xs">
         <p className="break-words">
           Project: #{task.projectId}
         </p>
@@ -119,9 +129,7 @@ function KanbanTaskCard({
 
         <p className="break-words">
           Deadline:{' '}
-          {formatDueDate(
-            task.dueDate
-          )}
+          {formatDueDate(task.dueDate)}
         </p>
       </div>
 
@@ -137,6 +145,7 @@ function KanbanTaskCard({
             event.stopPropagation()
           }
           className="
+            shrink-0
             rounded-md
             border
             px-2.5
@@ -195,6 +204,7 @@ function KanbanColumn({
         w-full
         min-w-0
         flex-col
+        overflow-hidden
         rounded-lg
         border
         p-3
@@ -208,8 +218,8 @@ function KanbanColumn({
         }
       `}
     >
-      <div className="mb-3 sm:mb-4">
-        <div className="flex items-center justify-between gap-2">
+      <div className="mb-3 min-w-0 sm:mb-4">
+        <div className="flex min-w-0 items-center justify-between gap-2">
           <h2 className="min-w-0 break-words text-sm font-semibold text-gray-900 sm:text-base">
             {title}
           </h2>
@@ -219,7 +229,7 @@ function KanbanColumn({
           </span>
         </div>
 
-        <p className="mt-1 break-words text-[11px] text-gray-500 sm:text-xs">
+        <p className="mt-1 break-words text-[11px] leading-4 text-gray-500 sm:text-xs">
           {description}
         </p>
       </div>
@@ -366,7 +376,7 @@ export default function KanbanBoard({
   }
 
   return (
-    <div className="w-full min-w-0 pb-4">
+    <div className="w-full min-w-0 overflow-hidden pb-4">
       <div
         className="
           grid

@@ -69,29 +69,42 @@ function KanbanTaskCard({
   ) => void;
 }) {
   return (
-    <div
+    <article
       draggable
       onDragStart={(event) =>
         onDragStart(event, task)
       }
       className="
+        group
         w-full
         min-w-0
         cursor-grab
-        overflow-hidden
-        rounded-lg
+        rounded-xl
         border
+        border-gray-200
         bg-white
         p-3
         shadow-sm
-        transition-shadow
+        transition
+        hover:-translate-y-0.5
         hover:shadow-md
         active:cursor-grabbing
         sm:p-4
       "
     >
       <div className="flex min-w-0 items-start gap-2">
-        <h3 className="min-w-0 flex-1 break-words text-sm font-semibold leading-5 text-gray-900 sm:text-base sm:leading-6">
+        <h3
+          className="
+            min-w-0
+            flex-1
+            break-words
+            text-sm
+            font-semibold
+            leading-5
+            text-gray-900
+            sm:text-base
+          "
+        >
           {task.title}
         </h3>
 
@@ -103,7 +116,7 @@ function KanbanTaskCard({
             px-2
             py-1
             text-[10px]
-            font-medium
+            font-semibold
             sm:text-xs
             ${getPriorityClasses(task.priority)}
           `}
@@ -112,28 +125,61 @@ function KanbanTaskCard({
         </span>
       </div>
 
-      <p className="mt-2 break-words text-xs leading-5 text-gray-600 sm:text-sm">
+      <p
+        className="
+          mt-2
+          line-clamp-3
+          break-words
+          text-xs
+          leading-5
+          text-gray-600
+          sm:text-sm
+        "
+      >
         {task.description ||
           'No description'}
       </p>
 
-      <div className="mt-3 space-y-1 text-[11px] leading-4 text-gray-500 sm:mt-4 sm:text-xs">
+      <div
+        className="
+          mt-3
+          space-y-1
+          text-[11px]
+          leading-4
+          text-gray-500
+          sm:mt-4
+          sm:text-xs
+        "
+      >
         <p className="break-words">
           Project: #{task.projectId}
         </p>
 
         <p className="break-words">
           Assignee:{' '}
-          {task.assigneeId ?? 'Unassigned'}
+          {task.assigneeId ??
+            'Unassigned'}
         </p>
 
         <p className="break-words">
           Deadline:{' '}
-          {formatDueDate(task.dueDate)}
+          {formatDueDate(
+            task.dueDate
+          )}
         </p>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 sm:mt-4">
+      <div
+        className="
+          mt-3
+          flex
+          flex-wrap
+          items-center
+          justify-between
+          gap-2
+          sm:mt-4
+        "
+      >
         <span className="text-[11px] text-gray-400 sm:text-xs">
           Task #{task.id}
         </span>
@@ -148,11 +194,13 @@ function KanbanTaskCard({
             shrink-0
             rounded-md
             border
+            border-gray-300
             px-2.5
             py-1.5
             text-[11px]
             font-medium
             text-gray-700
+            transition
             hover:bg-gray-50
             sm:px-3
             sm:text-xs
@@ -161,7 +209,7 @@ function KanbanTaskCard({
           View Task
         </Link>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -200,16 +248,16 @@ function KanbanColumn({
       }
       className={`
         flex
-        min-h-[320px]
+        min-h-[360px]
         w-full
         min-w-0
         flex-col
-        overflow-hidden
-        rounded-lg
+        rounded-xl
         border
+        border-gray-200
         p-3
         transition-colors
-        sm:min-h-[380px]
+        sm:min-h-[420px]
         sm:p-4
         ${
           isDropTarget
@@ -218,25 +266,45 @@ function KanbanColumn({
         }
       `}
     >
-      <div className="mb-3 min-w-0 sm:mb-4">
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          <h2 className="min-w-0 break-words text-sm font-semibold text-gray-900 sm:text-base">
-            {title}
-          </h2>
+      <header className="mb-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="break-words text-sm font-bold text-gray-900 sm:text-base">
+              {title}
+            </h2>
 
-          <span className="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-semibold text-gray-600 sm:px-2.5">
+            <p className="mt-1 break-words text-[11px] leading-4 text-gray-500 sm:text-xs">
+              {description}
+            </p>
+          </div>
+
+          <span className="flex h-7 min-w-7 shrink-0 items-center justify-center rounded-full bg-white px-2 text-xs font-semibold text-gray-600 shadow-sm">
             {tasks.length}
           </span>
         </div>
-
-        <p className="mt-1 break-words text-[11px] leading-4 text-gray-500 sm:text-xs">
-          {description}
-        </p>
-      </div>
+      </header>
 
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         {tasks.length === 0 ? (
-          <div className="flex min-h-[120px] flex-1 items-center justify-center rounded-md border border-dashed bg-white p-3 text-center text-xs text-gray-400 sm:min-h-[160px] sm:p-4 sm:text-sm">
+          <div
+            className="
+              flex
+              min-h-[140px]
+              flex-1
+              items-center
+              justify-center
+              rounded-lg
+              border
+              border-dashed
+              border-gray-300
+              bg-white
+              p-4
+              text-center
+              text-xs
+              text-gray-400
+              sm:text-sm
+            "
+          >
             Drop tasks here
           </div>
         ) : (
@@ -376,22 +444,12 @@ export default function KanbanBoard({
   }
 
   return (
-    <div className="w-full min-w-0 overflow-hidden pb-4">
-      <div
-        className="
-          grid
-          w-full
-          min-w-0
-          grid-cols-1
-          gap-4
-          md:grid-cols-2
-          xl:grid-cols-3
-        "
-      >
+    <div className="w-full min-w-0">
+      {/* Mobile */}
+      <div className="flex w-full flex-col gap-4 md:hidden">
         {columns.map((column) => (
           <div
             key={column.id}
-            className="w-full min-w-0"
             onDragEnter={() =>
               handleDragEnter(
                 column.id
@@ -420,6 +478,72 @@ export default function KanbanBoard({
             />
           </div>
         ))}
+      </div>
+
+      {/* Tablet + Desktop */}
+      <div
+        className="
+          hidden
+          w-full
+          min-w-0
+          md:block
+        "
+      >
+        <div
+          className="
+            w-full
+            overflow-x-auto
+            pb-3
+            md:scrollbar-thin
+          "
+        >
+          <div
+            className="
+              grid
+              min-w-[780px]
+              grid-cols-3
+              gap-4
+              xl:min-w-0
+            "
+          >
+            {columns.map((column) => (
+              <div
+                key={column.id}
+                className="
+                  min-w-0
+                "
+                onDragEnter={() =>
+                  handleDragEnter(
+                    column.id
+                  )
+                }
+                onDragLeave={
+                  handleDragLeave
+                }
+              >
+                <KanbanColumn
+                  status={column.id}
+                  title={column.title}
+                  description={
+                    column.description
+                  }
+                  tasks={column.tasks}
+                  isDropTarget={
+                    dropTarget ===
+                    column.id
+                  }
+                  onDragOver={
+                    handleDragOver
+                  }
+                  onDrop={handleDrop}
+                  onDragStart={
+                    handleDragStart
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

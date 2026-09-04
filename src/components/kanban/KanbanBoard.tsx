@@ -75,10 +75,9 @@ function KanbanTaskCard({
         onDragStart(event, task)
       }
       className="
-        group
         w-full
         min-w-0
-        cursor-grab
+        overflow-hidden
         rounded-xl
         border
         border-gray-200
@@ -102,7 +101,8 @@ function KanbanTaskCard({
             font-semibold
             leading-5
             text-gray-900
-            sm:text-base
+            xl:text-base
+            xl:leading-6
           "
         >
           {task.title}
@@ -118,7 +118,9 @@ function KanbanTaskCard({
             text-[10px]
             font-semibold
             sm:text-xs
-            ${getPriorityClasses(task.priority)}
+            ${getPriorityClasses(
+              task.priority
+            )}
           `}
         >
           {task.priority}
@@ -248,16 +250,17 @@ function KanbanColumn({
       }
       className={`
         flex
-        min-h-[360px]
+        min-h-[320px]
         w-full
         min-w-0
         flex-col
+        overflow-hidden
         rounded-xl
         border
         border-gray-200
         p-3
         transition-colors
-        sm:min-h-[420px]
+        sm:min-h-[380px]
         sm:p-4
         ${
           isDropTarget
@@ -266,8 +269,8 @@ function KanbanColumn({
         }
       `}
     >
-      <header className="mb-4">
-        <div className="flex items-center justify-between gap-3">
+      <header className="mb-4 min-w-0">
+        <div className="flex min-w-0 items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="break-words text-sm font-bold text-gray-900 sm:text-base">
               {title}
@@ -289,7 +292,7 @@ function KanbanColumn({
           <div
             className="
               flex
-              min-h-[140px]
+              min-h-[120px]
               flex-1
               items-center
               justify-center
@@ -302,6 +305,7 @@ function KanbanColumn({
               text-center
               text-xs
               text-gray-400
+              sm:min-h-[160px]
               sm:text-sm
             "
           >
@@ -445,17 +449,20 @@ export default function KanbanBoard({
 
   return (
     <div className="w-full min-w-0">
-      {/* Mobile */}
+      {/* Mobile: one column */}
       <div className="flex w-full flex-col gap-4 md:hidden">
         {columns.map((column) => (
           <div
             key={column.id}
+            className="w-full min-w-0"
             onDragEnter={() =>
               handleDragEnter(
                 column.id
               )
             }
-            onDragLeave={handleDragLeave}
+            onDragLeave={
+              handleDragLeave
+            }
           >
             <KanbanColumn
               status={column.id}
@@ -480,27 +487,16 @@ export default function KanbanBoard({
         ))}
       </div>
 
-      {/* Tablet + Desktop */}
-      <div
-        className="
-          hidden
-          w-full
-          min-w-0
-          md:block
-        "
-      >
-        <div
-          className="
-            w-full
-            overflow-x-auto
-            pb-3
-            md:scrollbar-thin
-          "
-        >
+      {/* Tablet and desktop:
+          keep all 3 columns in one row.
+          At narrower widths the board can scroll horizontally
+          instead of forcing the columns to wrap. */}
+      <div className="hidden w-full min-w-0 md:block">
+        <div className="w-full min-w-0 overflow-x-auto pb-3">
           <div
             className="
               grid
-              min-w-[780px]
+              min-w-[900px]
               grid-cols-3
               gap-4
               xl:min-w-0
@@ -509,9 +505,7 @@ export default function KanbanBoard({
             {columns.map((column) => (
               <div
                 key={column.id}
-                className="
-                  min-w-0
-                "
+                className="min-w-0"
                 onDragEnter={() =>
                   handleDragEnter(
                     column.id

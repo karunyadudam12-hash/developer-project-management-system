@@ -331,21 +331,21 @@ export default function KanbanBoard({
 
   return (
     <div className="w-full overflow-x-hidden pb-4">
-      <div
-        className="
-          flex
-          w-full
-          min-w-0
-          flex-col
-          gap-4
-          md:flex-row
-          md:items-start
-        "
-      >
+<div
+  className="
+    grid
+    w-full
+    min-w-0
+    grid-cols-1
+    gap-4
+    md:grid-cols-2
+    lg:grid-cols-3
+  "
+>
         {columns.map((column) => (
           <div
             key={column.id}
-            className="w-full min-w-0 md:flex-1"
+            className="w-full min-w-0 lg:flex-1"
             onDragEnter={() =>
               handleDragEnter(
                 column.id

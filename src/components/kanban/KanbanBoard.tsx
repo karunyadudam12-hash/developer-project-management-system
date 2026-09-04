@@ -53,9 +53,7 @@ function formatDueDate(
     return 'No deadline';
   }
 
-  return new Date(
-    value
-  ).toLocaleDateString();
+  return new Date(value).toLocaleDateString();
 }
 
 function KanbanTaskCard({
@@ -77,6 +75,7 @@ function KanbanTaskCard({
       className="
         w-full
         min-w-0
+        cursor-grab
         overflow-hidden
         rounded-xl
         border
@@ -85,7 +84,6 @@ function KanbanTaskCard({
         p-3
         shadow-sm
         transition
-        hover:-translate-y-0.5
         hover:shadow-md
         active:cursor-grabbing
         sm:p-4
@@ -101,8 +99,7 @@ function KanbanTaskCard({
             font-semibold
             leading-5
             text-gray-900
-            xl:text-base
-            xl:leading-6
+            lg:text-base
           "
         >
           {task.title}
@@ -138,8 +135,7 @@ function KanbanTaskCard({
           sm:text-sm
         "
       >
-        {task.description ||
-          'No description'}
+        {task.description || 'No description'}
       </p>
 
       <div
@@ -159,15 +155,12 @@ function KanbanTaskCard({
 
         <p className="break-words">
           Assignee:{' '}
-          {task.assigneeId ??
-            'Unassigned'}
+          {task.assigneeId ?? 'Unassigned'}
         </p>
 
         <p className="break-words">
           Deadline:{' '}
-          {formatDueDate(
-            task.dueDate
-          )}
+          {formatDueDate(task.dueDate)}
         </p>
       </div>
 
@@ -250,7 +243,7 @@ function KanbanColumn({
       }
       className={`
         flex
-        min-h-[320px]
+        min-h-[360px]
         w-full
         min-w-0
         flex-col
@@ -258,25 +251,26 @@ function KanbanColumn({
         rounded-xl
         border
         border-gray-200
+        bg-gray-50
         p-3
         transition-colors
-        sm:min-h-[380px]
+        sm:min-h-[400px]
         sm:p-4
         ${
           isDropTarget
             ? 'border-blue-400 bg-blue-50'
-            : 'bg-gray-50'
+            : ''
         }
       `}
     >
-      <header className="mb-4 min-w-0">
-        <div className="flex min-w-0 items-center justify-between gap-3">
+      <div className="mb-4">
+        <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="break-words text-sm font-bold text-gray-900 sm:text-base">
               {title}
             </h2>
 
-            <p className="mt-1 break-words text-[11px] leading-4 text-gray-500 sm:text-xs">
+            <p className="mt-1 break-words text-xs text-gray-500">
               {description}
             </p>
           </div>
@@ -285,14 +279,14 @@ function KanbanColumn({
             {tasks.length}
           </span>
         </div>
-      </header>
+      </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         {tasks.length === 0 ? (
           <div
             className="
               flex
-              min-h-[120px]
+              min-h-[140px]
               flex-1
               items-center
               justify-center
@@ -303,10 +297,8 @@ function KanbanColumn({
               bg-white
               p-4
               text-center
-              text-xs
+              text-sm
               text-gray-400
-              sm:min-h-[160px]
-              sm:text-sm
             "
           >
             Drop tasks here
@@ -357,8 +349,7 @@ export default function KanbanBoard({
     setDraggedTaskId(task.id);
     setDraggedTaskStatus(task.status);
 
-    event.dataTransfer.effectAllowed =
-      'move';
+    event.dataTransfer.effectAllowed = 'move';
 
     event.dataTransfer.setData(
       'text/plain',
@@ -371,8 +362,7 @@ export default function KanbanBoard({
   ) {
     event.preventDefault();
 
-    event.dataTransfer.dropEffect =
-      'move';
+    event.dataTransfer.dropEffect = 'move';
   }
 
   function handleDrop(
@@ -449,20 +439,16 @@ export default function KanbanBoard({
 
   return (
     <div className="w-full min-w-0">
-      {/* Mobile: one column */}
+      {/* Mobile */}
       <div className="flex w-full flex-col gap-4 md:hidden">
         {columns.map((column) => (
           <div
             key={column.id}
             className="w-full min-w-0"
             onDragEnter={() =>
-              handleDragEnter(
-                column.id
-              )
+              handleDragEnter(column.id)
             }
-            onDragLeave={
-              handleDragLeave
-            }
+            onDragLeave={handleDragLeave}
           >
             <KanbanColumn
               status={column.id}
@@ -472,31 +458,30 @@ export default function KanbanBoard({
               }
               tasks={column.tasks}
               isDropTarget={
-                dropTarget ===
-                column.id
+                dropTarget === column.id
               }
-              onDragOver={
-                handleDragOver
-              }
+              onDragOver={handleDragOver}
               onDrop={handleDrop}
-              onDragStart={
-                handleDragStart
-              }
+              onDragStart={handleDragStart}
             />
           </div>
         ))}
       </div>
 
-      {/* Tablet and desktop:
-          keep all 3 columns in one row.
-          At narrower widths the board can scroll horizontally
-          instead of forcing the columns to wrap. */}
+      {/* Tablet and desktop */}
       <div className="hidden w-full min-w-0 md:block">
-        <div className="w-full min-w-0 overflow-x-auto pb-3">
+        <div
+          className="
+            w-full
+            overflow-x-auto
+            overscroll-x-contain
+            pb-4
+          "
+        >
           <div
             className="
               grid
-              min-w-[900px]
+              min-w-[960px]
               grid-cols-3
               gap-4
               xl:min-w-0
@@ -505,15 +490,13 @@ export default function KanbanBoard({
             {columns.map((column) => (
               <div
                 key={column.id}
-                className="min-w-0"
+                className="
+                  min-w-0
+                "
                 onDragEnter={() =>
-                  handleDragEnter(
-                    column.id
-                  )
+                  handleDragEnter(column.id)
                 }
-                onDragLeave={
-                  handleDragLeave
-                }
+                onDragLeave={handleDragLeave}
               >
                 <KanbanColumn
                   status={column.id}

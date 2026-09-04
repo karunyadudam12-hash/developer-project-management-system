@@ -74,15 +74,27 @@ function KanbanTaskCard({
       onDragStart={(event) =>
         onDragStart(event, task)
       }
-      className="w-full cursor-grab rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing"
+      className="
+        w-full min-w-0
+        cursor-grab
+        rounded-lg
+        border
+        bg-white
+        p-3
+        shadow-sm
+        transition-shadow
+        hover:shadow-md
+        active:cursor-grabbing
+        sm:p-4
+      "
     >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="min-w-0 flex-1 break-words font-semibold text-gray-900">
+      <div className="flex min-w-0 items-start justify-between gap-2">
+        <h3 className="min-w-0 flex-1 break-words text-sm font-semibold text-gray-900 sm:text-base">
           {task.title}
         </h3>
 
         <span
-          className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${getPriorityClasses(
+          className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-medium sm:text-xs ${getPriorityClasses(
             task.priority
           )}`}
         >
@@ -90,22 +102,22 @@ function KanbanTaskCard({
         </span>
       </div>
 
-      <p className="mt-2 line-clamp-3 break-words text-sm text-gray-600">
+      <p className="mt-2 line-clamp-3 break-words text-xs text-gray-600 sm:text-sm">
         {task.description ||
           'No description'}
       </p>
 
-      <div className="mt-4 space-y-1 text-xs text-gray-500">
-        <p>
+      <div className="mt-3 space-y-1 text-[11px] text-gray-500 sm:mt-4 sm:text-xs">
+        <p className="break-words">
           Project: #{task.projectId}
         </p>
 
-        <p>
+        <p className="break-words">
           Assignee:{' '}
           {task.assigneeId ?? 'Unassigned'}
         </p>
 
-        <p>
+        <p className="break-words">
           Deadline:{' '}
           {formatDueDate(
             task.dueDate
@@ -113,8 +125,8 @@ function KanbanTaskCard({
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs text-gray-400">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 sm:mt-4">
+        <span className="text-[11px] text-gray-400 sm:text-xs">
           Task #{task.id}
         </span>
 
@@ -124,7 +136,18 @@ function KanbanTaskCard({
           onClick={(event) =>
             event.stopPropagation()
           }
-          className="rounded-md border px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          className="
+            rounded-md
+            border
+            px-2.5
+            py-1.5
+            text-[11px]
+            font-medium
+            text-gray-700
+            hover:bg-gray-50
+            sm:px-3
+            sm:text-xs
+          "
         >
           View Task
         </Link>
@@ -166,31 +189,44 @@ function KanbanColumn({
       onDrop={(event) =>
         onDrop(event, status)
       }
-      className={`flex min-h-[360px] w-full min-w-0 flex-1 flex-col rounded-lg border p-3 sm:min-h-[400px] sm:p-4 ${
-        isDropTarget
-          ? 'border-blue-400 bg-blue-50'
-          : 'bg-gray-50'
-      } transition-colors`}
+      className={`
+        flex
+        min-h-[320px]
+        w-full
+        min-w-0
+        flex-col
+        rounded-lg
+        border
+        p-3
+        transition-colors
+        sm:min-h-[380px]
+        sm:p-4
+        ${
+          isDropTarget
+            ? 'border-blue-400 bg-blue-50'
+            : 'bg-gray-50'
+        }
+      `}
     >
-      <div className="mb-4">
+      <div className="mb-3 sm:mb-4">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="min-w-0 break-words font-semibold text-gray-900">
+          <h2 className="min-w-0 break-words text-sm font-semibold text-gray-900 sm:text-base">
             {title}
           </h2>
 
-          <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-600">
+          <span className="shrink-0 rounded-full bg-white px-2 py-1 text-xs font-semibold text-gray-600 sm:px-2.5">
             {tasks.length}
           </span>
         </div>
 
-        <p className="mt-1 break-words text-xs text-gray-500">
+        <p className="mt-1 break-words text-[11px] text-gray-500 sm:text-xs">
           {description}
         </p>
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         {tasks.length === 0 ? (
-          <div className="flex min-h-[140px] flex-1 items-center justify-center rounded-md border border-dashed bg-white p-4 text-center text-sm text-gray-400">
+          <div className="flex min-h-[120px] flex-1 items-center justify-center rounded-md border border-dashed bg-white p-3 text-center text-xs text-gray-400 sm:min-h-[160px] sm:p-4 sm:text-sm">
             Drop tasks here
           </div>
         ) : (
@@ -330,22 +366,22 @@ export default function KanbanBoard({
   }
 
   return (
-    <div className="w-full overflow-x-hidden pb-4">
-<div
-  className="
-    grid
-    w-full
-    min-w-0
-    grid-cols-1
-    gap-4
-    md:grid-cols-2
-    lg:grid-cols-3
-  "
->
+    <div className="w-full min-w-0 pb-4">
+      <div
+        className="
+          grid
+          w-full
+          min-w-0
+          grid-cols-1
+          gap-4
+          md:grid-cols-2
+          xl:grid-cols-3
+        "
+      >
         {columns.map((column) => (
           <div
             key={column.id}
-            className="w-full min-w-0 lg:flex-1"
+            className="w-full min-w-0"
             onDragEnter={() =>
               handleDragEnter(
                 column.id

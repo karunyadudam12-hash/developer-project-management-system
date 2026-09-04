@@ -153,7 +153,7 @@ export async function createTask(data: {
   priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   projectId: number;
   assigneeId?: number;
-  dueDate?: string;
+  dueDate?: string | null;
 }) {
   return db.orm.public.Task.create({
     title: data.title,

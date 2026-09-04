@@ -43,12 +43,12 @@ export default function TaskStatusChart({
       title="Task Status"
       description="Tasks grouped by current status"
     >
-      <div className="h-80 w-full">
+      <div className="h-56 w-full sm:h-72 lg:h-80">
         <ResponsiveContainer
           width="100%"
           height="100%"
         >
-          <BarChart data={chartData}>
+          <BarChart data={chartData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" />
 
             <XAxis dataKey="status" />

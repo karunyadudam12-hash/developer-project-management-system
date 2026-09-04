@@ -47,7 +47,7 @@ export default function PriorityDistributionChart({
       title="Priority Distribution"
       description="Tasks grouped by priority"
     >
-      <div className="h-80 w-full">
+      <div className="h-64 w-full sm:h-72 lg:h-80">
         <ResponsiveContainer
           width="100%"
           height="100%"
@@ -59,8 +59,7 @@ export default function PriorityDistributionChart({
               nameKey="name"
               cx="50%"
               cy="50%"
-              outerRadius={100}
-              label
+              outerRadius="72%"
             >
               {chartData.map((entry) => (
                 <Cell

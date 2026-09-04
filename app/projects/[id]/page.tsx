@@ -50,6 +50,7 @@ type ProjectMember = {
 export default function ProjectDetailsPage() {
   const params = useParams();
   const projectId = Number(params.id);
+  const invalidProjectId = !Number.isInteger(projectId) || projectId <= 0;
 
   const [project, setProject] =
     useState<Project | null>(null);
@@ -73,6 +74,10 @@ export default function ProjectDetailsPage() {
     useState('');
 
   useEffect(() => {
+    if (invalidProjectId) {
+      return;
+    }
+
     async function loadProject() {
       try {
         const response = await fetch(
@@ -143,14 +148,9 @@ export default function ProjectDetailsPage() {
         setMembersLoading(false);
       }
     }
-if (
-  Number.isInteger(projectId) &&
-  projectId > 0
-) {
-  loadProject();
-  loadMembers();
-}
-  }, [projectId]);
+    loadProject();
+    loadMembers();
+  }, [invalidProjectId, projectId]);
 
   function getStatusClasses(
     status: ProjectStatus
@@ -219,9 +219,20 @@ if (
     }
   }
 
+  if (invalidProjectId) {
+    return (
+      <main className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
+        <h1 className="text-3xl font-bold">Project Details</h1>
+        <p className="mt-4 rounded-md bg-red-100 p-3 text-red-700">
+          Invalid project ID
+        </p>
+      </main>
+    );
+  }
+
   if (loading) {
     return (
-      <main className="p-8">
+      <main className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
         <h1 className="text-3xl font-bold">
           Project Details
         </h1>
@@ -235,7 +246,7 @@ if (
 
   if (error) {
     return (
-      <main className="p-8">
+      <main className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
         <h1 className="text-3xl font-bold">
           Project Details
         </h1>
@@ -249,7 +260,7 @@ if (
 
   if (!project) {
     return (
-      <main className="p-8">
+      <main className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
         <h1 className="text-3xl font-bold">
           Project Details
         </h1>
@@ -262,7 +273,7 @@ if (
   }
 
   return (
-    <main className="p-8">
+    <main className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
       <div className="rounded-lg border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -308,7 +319,7 @@ if (
         </div>
 
         <div className="mt-8 border-t pt-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold">
                 Project Tasks
@@ -402,7 +413,7 @@ if (
         </div>
 
         <div className="mt-8 border-t pt-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold">
                 Project Members

@@ -2,14 +2,12 @@ import crypto from 'node:crypto';
 
 import {
   createSession,
+  deleteSessionByTokenHash,
   getSessionByTokenHash,
 } from '../repositories/session.repository';
 
 const SESSION_DURATION_MS =
   7 * 24 * 60 * 60 * 1000;
-
-const revokedTokens = new Set<string>();
-
 
 export function generateSessionToken() {
   return crypto.randomBytes(32).toString('hex');
@@ -47,10 +45,6 @@ export async function createUserSession(userId: number) {
 
 
 export async function validateSession(token: string) {
-  if (revokedTokens.has(token)) {
-    return null;
-  }
-
   const tokenHash = hashSessionToken(token);
 
   const session =
@@ -78,7 +72,7 @@ export async function logoutUser(token: string) {
     return false;
   }
 
-  revokedTokens.add(token);
+  await deleteSessionByTokenHash(hashSessionToken(token));
 
   return true;
 }

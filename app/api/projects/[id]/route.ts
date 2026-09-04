@@ -400,8 +400,17 @@ export async function DELETE(
       error
     );
 
-    return errorResponse(
-      'Failed to delete project'
-    );
+    if (
+      error instanceof Error &&
+      error.message ===
+        'Project cannot be deleted while it has members or tasks'
+    ) {
+      return errorResponse(
+        'Remove the project tasks and members before deleting this project.',
+        409
+      );
+    }
+
+    return errorResponse('Failed to delete project');
   }
 }

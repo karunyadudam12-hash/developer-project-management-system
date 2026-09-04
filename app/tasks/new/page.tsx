@@ -151,7 +151,7 @@ export default function CreateTaskPage() {
   }
 
   return (
-    <main className="p-8">
+    <main className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-3xl">
         <h1 className="text-3xl font-bold">
           Create Task

@@ -278,7 +278,7 @@ export default function TasksPage() {
   }
 
   return (
-    <main className="p-8">
+ <main className="w-full min-w-0 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">
@@ -616,10 +616,10 @@ export default function TasksPage() {
       {!loading &&
         tasks.length > 0 &&
         view === 'kanban' && (
-          <div
-            className="mt-6"
-            aria-label="Task Kanban board"
-          >
+<div
+  className="mt-6 w-full min-w-0"
+  aria-label="Task Kanban board"
+>
             <KanbanBoard
               tasks={tasks}
               onTaskMove={handleTaskMove}

@@ -48,5 +48,6 @@ export const taskSchema = z.object({
   dueDate: z
     .string()
     .datetime()
+    .nullable()
     .optional(),
 });

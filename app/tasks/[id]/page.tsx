@@ -1001,7 +1001,7 @@ body: JSON.stringify({
 
   if (loading) {
     return (
-      <main className="p-8">
+      <main className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
         <h1 className="text-3xl font-bold">
           Task Details
         </h1>
@@ -1015,7 +1015,7 @@ body: JSON.stringify({
 
   if (error && !task) {
     return (
-      <main className="p-8">
+      <main className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
         <h1 className="text-3xl font-bold">
           Task Details
         </h1>
@@ -1029,7 +1029,7 @@ body: JSON.stringify({
 
   if (!task) {
     return (
-      <main className="p-8">
+      <main className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
         <h1 className="text-3xl font-bold">
           Task Details
         </h1>
@@ -1042,7 +1042,7 @@ body: JSON.stringify({
   }
 
   return (
-    <main className="p-8">
+    <main className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
       <div className="rounded-lg border bg-white p-6 shadow-sm">
         {error && (
           <p className="mb-4 rounded-md bg-red-100 p-3 text-red-700">
@@ -1173,7 +1173,7 @@ body: JSON.stringify({
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <button
                   onClick={saveTask}
                   disabled={saving}
@@ -1514,7 +1514,7 @@ body: JSON.stringify({
                     Attach existing label
                   </label>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <select
                       value={selectedLabel}
                       onChange={(event) =>
@@ -1572,7 +1572,7 @@ body: JSON.stringify({
                     Create new label
                   </label>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <input
                       value={newLabelName}
                       onChange={(event) =>

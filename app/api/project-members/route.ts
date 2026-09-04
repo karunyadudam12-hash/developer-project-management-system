@@ -45,15 +45,6 @@ export async function GET(request: Request) {
       return errorResponse('Unauthorized', 401);
     }
 
-    if (
-      !hasPermission(
-        user.role as Role,
-        PERMISSIONS.MANAGE_MEMBERS
-      )
-    ) {
-      return errorResponse('Forbidden', 403);
-    }
-
     const { searchParams } = new URL(request.url);
 
     const projectId = Number(

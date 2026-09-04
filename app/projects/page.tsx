@@ -248,7 +248,7 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <main className="p-8">
+      <main className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
         <h1 className="text-3xl font-bold">
           Projects
         </h1>
@@ -261,7 +261,7 @@ export default function ProjectsPage() {
   }
 
   return (
-    <main className="p-8">
+    <main className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">
@@ -383,7 +383,7 @@ export default function ProjectsPage() {
                     </select>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3">
                     <button
                       type="button"
                       onClick={

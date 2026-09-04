@@ -9,6 +9,10 @@ import {
 } from '@/src/lib/api-response';
 
 import { requireAuth } from '@/src/auth/auth.guard';
+import { hasPermission } from '@/src/auth/permission.helper';
+import { PERMISSIONS } from '@/src/auth/permissions';
+import { projectSchema } from '@/src/validations/project.validation';
+import type { Role } from '@/src/auth/roles';
 
 import { logProjectActivity } from '@/src/repositories/activity.repository';
 
@@ -89,40 +93,22 @@ export async function POST(
       );
     }
 
+    if (!hasPermission(user.role as Role, PERMISSIONS.CREATE_PROJECT)) {
+      return errorResponse('Forbidden', 403);
+    }
+
     const body =
       await request.json();
 
-    const name =
-      typeof body.name === 'string'
-        ? body.name.trim()
-        : '';
+    const parsed = projectSchema.safeParse(body);
 
-    const description =
-      typeof body.description === 'string'
-        ? body.description.trim()
-        : undefined;
-
-    const status =
-      typeof body.status === 'string'
-        ? body.status.trim()
-        : undefined;
-
-    if (!name) {
-      return errorResponse(
-        'Project name is required',
-        400
-      );
+    if (!parsed.success) {
+      return errorResponse('Invalid project data', 400, parsed.error.issues);
     }
 
     const project =
       await createProject({
-        name,
-        ...(description !== undefined && {
-          description,
-        }),
-        ...(status !== undefined && {
-          status,
-        }),
+        ...parsed.data,
       });
 
     await logProjectActivity({

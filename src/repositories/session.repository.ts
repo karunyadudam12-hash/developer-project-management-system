@@ -19,3 +19,9 @@ export async function getSessionByTokenHash(tokenHash: string) {
     sessions.find((session) => session.tokenHash === tokenHash) ?? null
   );
 }
+
+export async function deleteSessionByTokenHash(tokenHash: string) {
+  return db.orm.public.Session
+    .where({ tokenHash })
+    .delete();
+}

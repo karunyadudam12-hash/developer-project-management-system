@@ -21,6 +21,8 @@ import { logProjectActivity } from '@/src/repositories/activity.repository';
 
 import type { Role } from '@/src/auth/roles';
 
+import { getProjectMember } from '@/src/repositories/project-member.repository';
+
 function getToken(request: Request) {
   const authorization =
     request.headers.get('authorization');
@@ -106,6 +108,18 @@ export async function GET(
         404
       );
     }
+
+    if (user.role === 'STAFF') {
+  const projectMember = await getProjectMember(
+    projectId,
+    user.id
+  );
+
+  if (!projectMember) {
+    return errorResponse('Forbidden', 403);
+  }
+}
+
 
     const tasks =
       await getTasks({

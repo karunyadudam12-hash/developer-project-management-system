@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { requireFrontendAuth } from '@/src/auth/route-protection';
 
 import {
@@ -23,6 +25,11 @@ import ProductivityChart from '@/src/components/dashboard/ProductivityChart';
 
 import RecentActivity from '@/src/components/dashboard/RecentActivity';
 import DashboardFiltersComponent from '@/src/components/dashboard/DashboardFilters';
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'DPMS project management dashboard',
+};
 
 type DashboardPageProps = {
   searchParams: Promise<{

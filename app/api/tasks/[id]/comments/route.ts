@@ -17,6 +17,8 @@ import { PERMISSIONS } from '@/src/auth/permissions';
 import { commentSchema } from '@/src/validations/comment.validation';
 
 import type { Role } from '@/src/auth/roles';
+import { createNotification } from '@/src/repositories/notification.repository';
+import { logTaskActivity } from '@/src/repositories/activity.repository';
 
 function getToken(request: Request) {
   const authorization =
@@ -186,6 +188,25 @@ export async function POST(
         taskId,
         authorId: user.id,
       });
+
+    await logTaskActivity({
+      actorId: user.id,
+      taskId: task.id,
+      projectId: task.projectId,
+      type: 'COMMENT_ADDED',
+      description: `A comment was added to Task "${task.title}"`,
+    });
+
+    if (task.assigneeId && task.assigneeId !== user.id) {
+      await createNotification({
+        userId: task.assigneeId,
+        actorId: user.id,
+        taskId: task.id,
+        projectId: task.projectId,
+        type: 'COMMENT',
+        message: `A new comment was added to your task "${task.title}"`,
+      });
+    }
 
     return successResponse(
       comment,

@@ -220,7 +220,7 @@ export async function getDashboardProjects(
   return dashboardData.projects
     .map((project) => ({
       id: project.id,
-      label: `Project #${project.id}`,
+      label: project.name,
       status: project.status,
     }))
     .sort(

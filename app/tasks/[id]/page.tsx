@@ -1043,6 +1043,13 @@ body: JSON.stringify({
 
   return (
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
+      <button
+        type="button"
+        onClick={() => router.push('/tasks')}
+        className="mb-4 inline-flex min-h-11 items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:border-blue-600 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+      >
+        ← Back to tasks
+      </button>
       <div className="rounded-lg border bg-white p-6 shadow-sm">
         {error && (
           <p className="mb-4 rounded-md bg-red-100 p-3 text-red-700">

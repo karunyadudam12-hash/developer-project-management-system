@@ -15,6 +15,9 @@ import { PERMISSIONS } from '@/src/auth/permissions';
 import { taskSchema } from '@/src/validations/task.validation';
 
 import { logTaskActivity } from '@/src/repositories/activity.repository';
+import { getProjectById } from '@/src/repositories/project.repository';
+import { getUserById } from '@/src/repositories/user.repository';
+import { getProjectMember } from '@/src/repositories/project-member.repository';
 
 import type { Role } from '@/src/auth/roles';
 
@@ -232,6 +235,31 @@ export async function POST(request: Request) {
         'Invalid task data',
         400
       );
+    }
+
+    const project = await getProjectById(parsed.data.projectId);
+
+    if (!project) {
+      return errorResponse('Project not found', 404);
+    }
+
+    if (parsed.data.assigneeId !== undefined) {
+      const assignee = await getUserById(parsed.data.assigneeId);
+      if (!assignee) {
+        return errorResponse('Assignee not found', 404);
+      }
+
+      const membership = await getProjectMember(
+        parsed.data.projectId,
+        parsed.data.assigneeId
+      );
+
+      if (!membership) {
+        return errorResponse(
+          'Assignee must be a member of the task project',
+          400
+        );
+      }
     }
 
     const task =
